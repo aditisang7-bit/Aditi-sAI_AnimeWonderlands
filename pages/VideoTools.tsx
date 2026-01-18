@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FileUpload } from '../components/FileUpload';
 import { analyzeVideo, generateVeoVideo, generateSpeech, playRawAudio } from '../services/geminiService';
 import { PROMPTS } from '../constants';
@@ -9,6 +10,7 @@ type AdStyle = 'UGC' | 'ANIMATED';
 type AspectRatio = '16:9' | '9:16';
 
 export const VideoTools: React.FC = () => {
+  const location = useLocation();
   const [activeTool, setActiveTool] = useState<ToolType>('IMG_TO_VIDEO');
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,6 +25,17 @@ export const VideoTools: React.FC = () => {
   const [videoPrompt, setVideoPrompt] = useState("");
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('16:9');
   
+  useEffect(() => {
+    if (location.state?.autoGenPrompt) {
+        setVideoPrompt(location.state.autoGenPrompt);
+        // Note: We cannot fully auto-execute video here because video gen usually requires a reference image or specific model
+        // which might not be present. However, we can set the prompt and prepare the UI.
+        
+        // Clear state
+        window.history.replaceState({}, '');
+    }
+  }, []);
+
   const handleGenerate = async () => {
     setLoading(true);
     setError(null);
@@ -58,9 +71,20 @@ export const VideoTools: React.FC = () => {
         setResultAudio(audioBase64);
       } 
       else if (activeTool === 'IMG_TO_VIDEO') {
-        if (!file) throw new Error("Please upload a reference image.");
-        
         // General Image to Video
+        if (!file && !videoPrompt) throw new Error("Please provide a prompt or upload an image.");
+        
+        // If NO file but we have a prompt (e.g. from AutoGen), we might need text-to-video.
+        // The Veo function currently expects image, but Veo can do text-to-video too.
+        // Let's adapt if needed, but for now we enforce image for consistency with Veo I2V.
+        // If the user arrived via AutoGen, they might not have an image yet.
+        
+        if (!file) {
+            // We can try text-only generation if supported, or error out asking for image.
+            // For this implementation, we will assume image is required for high quality.
+             throw new Error("Please upload a reference image to animate.");
+        }
+
         const finalPrompt = videoPrompt.trim() || PROMPTS.VIDEO_DEFAULT;
         const videoUrl = await generateVeoVideo(finalPrompt, file, aspectRatio);
         setResultVideo(videoUrl);

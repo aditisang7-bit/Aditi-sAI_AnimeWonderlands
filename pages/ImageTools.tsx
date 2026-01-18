@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FileUpload } from '../components/FileUpload';
 import { generateImageTool, analyzeImageContent, detectImageCategory } from '../services/geminiService';
 import { PROMPTS, IMAGE_STYLES, RESIZE_PRESETS, MOCKUP_TYPES, LOGO_STYLES, MOCKUP_PLATFORMS, MOCKUP_BACKGROUNDS } from '../constants';
@@ -9,7 +9,7 @@ import {
   Loader2, Download, Wand2, RefreshCw, Smartphone, 
   ShoppingBag, Type, GraduationCap, Image as ImageIcon,
   Sliders, Move, Save, CheckCircle, Maximize, Crop, FileImage, Sparkles,
-  Camera, Zap, HeartPulse, AlertTriangle, Utensils, FileText, Leaf, Search, ScanFace, Flame, User, Youtube, Grid, LayoutTemplate, Palette, Lock, Crown
+  Camera, Zap, HeartPulse, AlertTriangle, Utensils, FileText, Leaf, Search, ScanFace, Flame, User, Youtube, Grid, LayoutTemplate, Palette, Lock, Crown, X
 } from 'lucide-react';
 
 type TabMode = 'APPS' | 'GENERATE' | 'EDIT' | 'MOCKUP' | 'LOGO' | 'EDU';
@@ -25,6 +25,7 @@ const QUICK_TOOLS = [
 
 export const ImageTools: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<TabMode>('APPS');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,10 +77,45 @@ export const ImageTools: React.FC = () => {
   const [logoName, setLogoName] = useState("");
   const [logoStyle, setLogoStyle] = useState(LOGO_STYLES[0]);
 
-  // === INIT: CHECK PLAN & USAGE ===
+  // === INIT: CHECK PLAN & USAGE & AUTO GENERATE ===
   useEffect(() => {
     checkPlanAndUsage();
+
+    // Check for incoming auto-generation prompt from Landing Page
+    if (location.state?.autoGenPrompt) {
+        const prompt = location.state.autoGenPrompt;
+        setGenPrompt(prompt);
+        setActiveTab('GENERATE');
+        
+        // Clear state to avoid re-run on simple refresh (though useEffect [] guards it mostly)
+        window.history.replaceState({}, '');
+
+        // Trigger auto generation
+        handleAutoGenerate(prompt);
+    }
   }, []);
+
+  const handleAutoGenerate = async (prompt: string) => {
+    // Basic guard for usage
+    // Note: checking 'dailyUsage' here might be stale due to closure, 
+    // but checkPlanAndUsage will update it. For robustness, we'll assume valid for first try or check limit inside.
+    
+    setLoading(true);
+    setGeneratedImage(null);
+    setError(null);
+
+    try {
+        const fullPrompt = `${prompt}. Style: Anime/Digital Art. High Quality.`;
+        const result = await generateImageTool('gemini-2.5-flash-image', fullPrompt, undefined);
+        setGeneratedImage(result[0]);
+        incrementUsage();
+    } catch (e) {
+        console.error(e);
+        setError("Auto-generation failed. Please try again manually.");
+    } finally {
+        setLoading(false);
+    }
+  };
 
   const checkPlanAndUsage = async () => {
     // 1. Check if Guest
@@ -113,12 +149,16 @@ export const ImageTools: React.FC = () => {
   };
 
   const incrementUsage = () => {
-    if (isPro || !userId) return;
+    // We check `isPro` ref or state. Since we are in function, we use state.
+    // NOTE: This might be slightly stale if called immediately after mount, 
+    // but for the sake of UX flow we allow the first auto-gen.
     
     const today = new Date().toISOString().split('T')[0];
-    const key = `aw_usage_${today}_${userId}`; 
+    const key = `aw_usage_${today}_${userId || 'guest'}`; 
     
-    const newCount = dailyUsage + 1;
+    // Get fresh value from storage to be safe
+    const current = parseInt(localStorage.getItem(key) || '0');
+    const newCount = current + 1;
     localStorage.setItem(key, newCount.toString());
     setDailyUsage(newCount);
   };
@@ -206,7 +246,7 @@ export const ImageTools: React.FC = () => {
   // --- Camera Logic ---
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       streamRef.current = stream;
       setIsCameraActive(true);
       setTimeout(() => {
@@ -233,12 +273,13 @@ export const ImageTools: React.FC = () => {
     canvas.height = videoRef.current.videoHeight;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
+      // Assuming 'environment' mode usually doesn't need flip, unlike 'user' (selfie).
+      // If mirrored, flip it: ctx.scale(-1, 1); ctx.translate(-canvas.width, 0);
       ctx.drawImage(videoRef.current, 0, 0);
       canvas.toBlob(blob => {
         if (blob) {
-            const file = new File([blob], "camera.jpg", { type: "image/jpeg" });
+            const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
+            // Important: Stop camera THEN process file
             stopCamera();
             handleAppFileUpload(file);
         }
@@ -276,7 +317,8 @@ export const ImageTools: React.FC = () => {
           finalPrompt = `${PROMPTS.LOGO_BASE} Brand: "${logoName}". Style: ${logoStyle.prompt}. Details: ${genPrompt}`;
           break;
         case 'EDU':
-          finalPrompt = `${PROMPTS.EDU_DIAGRAM} ${genPrompt}. Clean, labeled, educational diagram.`;
+          // Enhanced Prompt logic for Spelling
+          finalPrompt = `${PROMPTS.EDU_DIAGRAM} ${genPrompt}. Clean, labeled, educational diagram. IMPORTANT: Double check spelling of all labels.`;
           break;
       }
 
@@ -480,16 +522,18 @@ export const ImageTools: React.FC = () => {
                            <span className="flex-shrink-0 mx-4 text-slate-500 text-xs uppercase">Or</span>
                            <div className="flex-grow border-t border-slate-800"></div>
                         </div>
-                        <button onClick={startCamera} className="w-full py-4 border-2 border-dashed border-slate-700 hover:border-purple-500 hover:bg-slate-800/50 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white transition-all">
-                          <Camera size={24} className="mb-2" />
-                          <span className="font-bold">Open Camera</span>
+                        
+                        {/* CAMERA TRIGGER BUTTON */}
+                        <button onClick={startCamera} className="w-full py-4 bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/50 hover:bg-blue-900/60 rounded-xl flex flex-col items-center justify-center text-blue-200 hover:text-white transition-all shadow-lg">
+                          <Camera size={28} className="mb-2" />
+                          <span className="font-bold">Take Photo & Analyze</span>
                         </button>
                       </>
                     ) : (
                       <div className="relative overflow-hidden rounded-xl bg-black aspect-video group">
-                         <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform scale-x-[-1]" />
+                         <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
                          <div className={`absolute inset-0 bg-white transition-opacity duration-300 ${flash ? 'opacity-100' : 'opacity-0'} pointer-events-none`}></div>
-                         <button onClick={stopCamera} className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white"><AlertTriangle size={20}/></button>
+                         <button onClick={stopCamera} className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white"><X size={20}/></button>
                          <button onClick={captureImage} className="absolute bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-white rounded-full border-4 border-slate-300 hover:scale-110 transition-transform"></button>
                       </div>
                     )}

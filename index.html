@@ -1,40 +1,164 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Anime Wonderlands - Play, Create & Connect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#0f172a">
     
+    <!-- PRIMARY SEO -->
+    <title>Aditi's AI - #1 Anime AI Generator, Ludo & Creative Tools | Pune</title>
+    <meta name="description" content="The ultimate AI ecosystem: Generate Anime Art, play Anime Ludo, visualize your Future Self, and create videos. Free AI tools based in Thergaon, Pune.">
+    <meta name="keywords" content="Anime AI Generator, Free AI Tools, Anime Ludo Game, Future Self AI, AI Video Creator, Aditi's AI, Pune AI Startup, Thergaon, AI Image Generation, Cosplay AI">
+    <meta name="author" content="Aditi's AI">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://animewonderlands.com" />
+
+    <!-- OPEN GRAPH / FACEBOOK / LINKEDIN -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://animewonderlands.com/" />
+    <meta property="og:title" content="Aditi's AI - Create, Play & Connect" />
+    <meta property="og:description" content="Generate professional Anime Art, play Ludo with AI, and create viral videos in seconds. Join the revolution." />
+    <meta property="og:image" content="https://animewonderlands.com/og-image.jpg" />
+    <meta property="og:site_name" content="Aditi's AI" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- TWITTER -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://animewonderlands.com/" />
+    <meta property="twitter:title" content="Aditi's AI - #1 Anime AI Generator" />
+    <meta property="twitter:description" content="Create Anime Art, play Ludo, and analyze docs with AI. Try it free." />
+    <meta property="twitter:image" content="https://animewonderlands.com/twitter-card.jpg" />
+
+    <!-- CRITICAL: Polyfill 'process' -->
+    <script>
+      window.process = window.process || { env: {} };
+    </script>
+    
+    <!-- PERFORMANCE PRECONNECTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+
     <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5777913995990269"
-     crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5777913995990269" crossorigin="anonymous"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              purple: {
+                50: 'var(--color-primary-50)',
+                100: 'var(--color-primary-100)',
+                200: 'var(--color-primary-200)',
+                300: 'var(--color-primary-300)',
+                400: 'var(--color-primary-400)',
+                500: 'var(--color-primary-500)',
+                600: 'var(--color-primary-600)',
+                700: 'var(--color-primary-700)',
+                800: 'var(--color-primary-800)',
+                900: 'var(--color-primary-900)',
+                950: 'var(--color-primary-950)',
+              }
+            }
+          }
+        }
+      }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
+      :root {
+        /* Default Purple Palette */
+        --color-primary-50: #faf5ff;
+        --color-primary-100: #f3e8ff;
+        --color-primary-200: #e9d5ff;
+        --color-primary-300: #d8b4fe;
+        --color-primary-400: #c084fc;
+        --color-primary-500: #a855f7;
+        --color-primary-600: #9333ea;
+        --color-primary-700: #7e22ce;
+        --color-primary-800: #6b21a8;
+        --color-primary-900: #581c87;
+        --color-primary-950: #3b0764;
+      }
       body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
-      /* Custom scrollbar for aesthetic */
       ::-webkit-scrollbar { width: 8px; }
       ::-webkit-scrollbar-track { background: #1e293b; }
-      ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
+      ::-webkit-scrollbar-thumb { background: var(--color-primary-600); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--color-primary-500); }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1",
-    "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
-  }
-}
-</script>
-</head>
+
+    <!-- STRUCTURED DATA (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "Aditi's AI",
+          "applicationCategory": "DesignApplication",
+          "operatingSystem": "Web",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR"
+          },
+          "description": "A comprehensive AI suite for Anime generation, Ludo gaming, and document intelligence."
+        },
+        {
+          "@type": "LocalBusiness",
+          "name": "Aditi's AI Headquarters",
+          "image": "https://animewonderlands.com/logo.png",
+          "telephone": "+91-0000000000",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Thergaon",
+            "addressLocality": "Pune",
+            "addressRegion": "Maharashtra",
+            "postalCode": "411033",
+            "addressCountry": "IN"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 18.6083,
+            "longitude": 73.7844
+          },
+          "url": "https://animewonderlands.com",
+          "priceRange": "$$"
+        },
+        {
+          "@type": "Organization",
+          "name": "Anime Wonderlands",
+          "url": "https://animewonderlands.com",
+          "logo": "https://animewonderlands.com/logo.png",
+          "sameAs": [
+            "https://twitter.com/animewonderlands",
+            "https://instagram.com/animewonderlands"
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.3",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+        "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+        "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1",
+        "vite": "https://esm.sh/vite@^7.3.1",
+        "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+      }
+    }
+    </script>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>

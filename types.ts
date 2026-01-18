@@ -21,6 +21,7 @@ export enum AppRoute {
   IMAGE_DASHBOARD = '/image-studio',
   VIDEO_TOOLS = '/video-studio',
   DOC_TOOLS = '/doc-intelligence',
+  AI_ASSISTANT = '/ai-assistant', // New Route
   
   // Legal & Support
   PRIVACY = '/privacy-policy',

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin-console
+Disallow: /settings
+Disallow: /payment-success
+
+Sitemap: https://animewonderlands.com/sitemap.xml

@@ -9,32 +9,29 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // Polyfill process.env so your existing code (services/supabaseClient.ts) works
-      'process.env': env
+      // Safely stringify the env object so 'process.env' becomes a valid JS object in the browser
+      'process.env': JSON.stringify(env)
     },
     build: {
       outDir: 'dist',
-      // Increase limit to 4MB to silence warnings for heavy AI apps
+      // Increase limit to 4MB to silence warnings
       chunkSizeWarningLimit: 4096,
       rollupOptions: {
         output: {
-          // Robust function-based chunk splitting
+          // Robust chunk splitting
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              // Split specific large vendors
+              // Split huge independent libraries
               if (id.includes('@google/genai')) {
                 return 'vendor-genai';
               }
               if (id.includes('@supabase')) {
                 return 'vendor-supabase';
               }
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-                return 'vendor-react';
+              // Group Core React deps to avoid initialization order issues
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+                  return 'vendor-react';
               }
-              if (id.includes('lucide-react')) {
-                return 'vendor-ui';
-              }
-              // Group remaining node_modules to keep the main index.js light
               return 'vendor-libs';
             }
           }

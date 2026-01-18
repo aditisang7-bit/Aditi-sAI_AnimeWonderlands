@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Gamepad2, 
@@ -16,13 +16,19 @@ import {
   Video,
   FileText,
   Cookie,
-  Ghost
+  Ghost,
+  Bot,
+  Volume2,
+  VolumeX,
+  Palette
 } from 'lucide-react';
 import { AppRoute } from '../types';
 import { APP_NAME, ADMIN_EMAIL } from '../constants';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 import { Footer } from './Footer';
 import { AdUnit } from './AdUnit';
+import { playUiSound, toggleMute, getMuteState } from '../services/audioTheme';
+import { setTheme, initTheme, ThemeColor, THEMES } from '../services/themeService';
 
 const NavLink = ({ to, icon, label, onClick }: { to: string, icon: React.ReactNode, label: string, onClick?: () => void }) => {
   const location = useLocation();
@@ -31,7 +37,11 @@ const NavLink = ({ to, icon, label, onClick }: { to: string, icon: React.ReactNo
   return (
     <Link 
       to={to} 
-      onClick={onClick}
+      onClick={() => {
+        playUiSound('click');
+        if (onClick) onClick();
+      }}
+      onMouseEnter={() => playUiSound('hover')}
       className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
         isActive 
           ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg shadow-pink-900/40' 
@@ -51,20 +61,44 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [profile, setProfile] = useState<any>(null);
   const [wonderCoins, setWonderCoins] = useState(500); 
   const [showCookieConsent, setShowCookieConsent] = useState(false);
+  const [isMuted, setIsMuted] = useState(getMuteState());
+  const [showThemePicker, setShowThemePicker] = useState(false);
+  const themePickerRef = useRef<HTMLDivElement>(null);
   
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthPage = location.pathname === AppRoute.LOGIN || location.pathname === AppRoute.REGISTER;
 
-  // --- EXIT INTENT FEEDBACK & COOKIE CHECK ---
+  // --- EXIT INTENT FEEDBACK & COOKIE CHECK & GLOBAL AUDIO ---
   useEffect(() => {
+    // Initialize Theme
+    initTheme();
+
+    // 1. Play sound on route change
+    playUiSound('click');
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "Are you sure you want to leave Aditi's AI? Unsaved progress in chats or generators will be lost.";
       return e.returnValue;
     };
 
+    // 2. Global Click Listener for UI sounds
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Close theme picker if clicked outside
+      if (themePickerRef.current && !themePickerRef.current.contains(target)) {
+        setShowThemePicker(false);
+      }
+
+      // Check if clicking a button or link (or inside one)
+      if (target.closest('button') || target.closest('a')) {
+        playUiSound('click');
+      }
+    };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('click', handleGlobalClick);
     
     // Cookie Consent Check
     const consent = localStorage.getItem('cookie_consent');
@@ -72,12 +106,26 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('click', handleGlobalClick);
     };
-  }, []);
+  }, [location.pathname]);
+
+  const handleToggleMute = () => {
+    const newState = toggleMute();
+    setIsMuted(newState);
+    if (!newState) playUiSound('activate');
+  };
+
+  const handleThemeChange = (color: ThemeColor) => {
+    setTheme(color);
+    playUiSound('success');
+    setShowThemePicker(false);
+  };
 
   const acceptCookies = () => {
     localStorage.setItem('cookie_consent', 'true');
     setShowCookieConsent(false);
+    playUiSound('success');
   };
 
   const fetchProfile = async () => {
@@ -186,7 +234,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#16161e] border-r border-slate-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
         {/* Header - Fixed Top */}
         <div className="p-6 flex items-center justify-between shrink-0">
-          <Link to={AppRoute.HOME} className="flex items-center space-x-2">
+          <Link to={AppRoute.HOME} className="flex items-center space-x-2" onMouseEnter={() => playUiSound('activate')}>
             <div className="w-9 h-9 bg-gradient-to-tr from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
               <Sparkles className="w-5 h-5 text-white" fill="currentColor" />
             </div>
@@ -221,6 +269,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
           <nav className="px-4 space-y-2 pb-6">
             <NavLink to={AppRoute.HOME} icon={<Home size={20} />} label="Lobby" onClick={() => setIsMobileMenuOpen(false)} />
+            <NavLink to={AppRoute.AI_ASSISTANT} icon={<Bot size={20} />} label="Wonder Chat" onClick={() => setIsMobileMenuOpen(false)} />
             
             <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Creation Studio</div>
             <NavLink to={AppRoute.IMAGE_DASHBOARD} icon={<Image size={20} />} label="Image Studio" onClick={() => setIsMobileMenuOpen(false)} />
@@ -228,7 +277,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <NavLink to={AppRoute.DOC_TOOLS} icon={<FileText size={20} />} label="Document AI" onClick={() => setIsMobileMenuOpen(false)} />
 
             <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Game Center</div>
-            <NavLink to={AppRoute.GAME_LUDO} icon={<Gamepad2 size={20} />} label="Anime Ludo" onClick={() => setIsMobileMenuOpen(false)} />
+            <div className="relative group cursor-not-allowed px-4 py-3 flex items-center space-x-3 rounded-xl text-slate-500 hover:bg-slate-800/50 transition-colors">
+              <Gamepad2 size={20} />
+              <span className="font-bold tracking-wide">Anime Ludo</span>
+              <span className="absolute right-4 text-[10px] font-bold bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30">SOON</span>
+            </div>
             
             <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Social</div>
             <NavLink to={AppRoute.FUTURE_SELF} icon={<Sparkles size={20} />} label="Future Self" onClick={() => setIsMobileMenuOpen(false)} />
@@ -241,7 +294,44 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </div>
 
         {/* Footer - Fixed Bottom */}
-        <div className="p-4 border-t border-slate-800 bg-[#16161e] shrink-0">
+        <div className="p-4 border-t border-slate-800 bg-[#16161e] shrink-0 relative" ref={themePickerRef}>
+           {/* Controls Container */}
+           <div className="mb-4 px-2 flex justify-between items-center">
+              {/* Theme Picker Trigger */}
+              <div className="relative">
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowThemePicker(!showThemePicker); }}
+                  className="p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  title="Change Theme"
+                >
+                  <Palette size={18} />
+                </button>
+                {/* Theme Popup */}
+                {showThemePicker && (
+                  <div className="absolute bottom-full left-0 mb-2 p-3 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl flex gap-2 animate-fade-in z-50 w-max">
+                     {(Object.keys(THEMES) as ThemeColor[]).map(color => (
+                        <button
+                          key={color}
+                          onClick={(e) => { e.stopPropagation(); handleThemeChange(color); }}
+                          className="w-6 h-6 rounded-full border border-white/20 hover:scale-110 transition-transform"
+                          style={{ backgroundColor: THEMES[color][500] }}
+                          title={color.charAt(0).toUpperCase() + color.slice(1)}
+                        />
+                     ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Sound Toggle */}
+              <button 
+                onClick={handleToggleMute} 
+                className={`p-2 rounded-full transition-colors ${isMuted ? 'text-slate-500 hover:text-slate-400' : 'text-purple-400 hover:text-purple-300 bg-purple-900/20'}`}
+                title={isMuted ? "Unmute UI Sounds" : "Mute UI Sounds"}
+              >
+                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              </button>
+           </div>
+
            {isAdmin && (
              <div className="mb-4 px-2">
                <Link to={AppRoute.ADMIN} className="flex items-center space-x-2 text-xs font-bold text-red-400 hover:text-red-300 transition-colors p-2 bg-red-950/30 rounded-lg border border-red-900/50">

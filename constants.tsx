@@ -123,7 +123,7 @@ export const PROMPTS = {
   SMART_ENHANCE: "Refine this prompt to be more descriptive, artistic, and effective for an image generation model. Keep it concise but add necessary details about lighting and composition. Prompt:",
   MOCKUP_BASE: "Create a photorealistic product mockup. Apply the design/logo provided (if any) naturally onto the product surface, respecting perspective, cloth folds, and lighting. The output must be ready for commercial use.",
   LOGO_BASE: "Design a professional logo. Ensure high contrast and vector-like quality. White background.",
-  EDU_DIAGRAM: "Create a clear, educational diagram or illustration for a school textbook. Clean lines, accurate labels, white background. Topic:",
+  EDU_DIAGRAM: "Create a clear, high-quality educational diagram for a textbook. WHITE BACKGROUND. CRITICAL: Ensure all text labels are spelled correctly, are legible, and lines clearly point to parts. Diagram must be accurate and textbook quality. Topic:",
 
   // --- LUDO ASSET GENERATION ---
   LUDO_ASSET_BOARD: `Design a Ludo board (top-down view). 
