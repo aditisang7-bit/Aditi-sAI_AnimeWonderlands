@@ -285,12 +285,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </header>
 
         <main className="flex-1 p-4 lg:p-8 overflow-y-auto relative z-10 flex flex-col">
-          {!isSupabaseConfigured && !localStorage.getItem('guest_mode') && (
-             <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-500/50 rounded-xl text-yellow-200 text-sm flex items-center gap-3">
-                <ShieldAlert size={20} />
-                <span><strong>Demo Mode:</strong> Backend connection is missing. Sign-in and database features are disabled.</span>
-             </div>
-          )}
           {isGuest && (
               <div className="mb-4 px-4 py-2 bg-slate-900/80 border border-slate-800 rounded-lg text-slate-400 text-xs flex justify-between items-center">
                   <span>Viewing as Guest. Progress is saved to this browser only.</span>
