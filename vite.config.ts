@@ -14,6 +14,20 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
+      // Increase the warning limit to 3000kb (3MB) to handle large GenAI & Supabase libraries
+      // This stops Vercel/Vite from warning about "large chunks" during build
+      chunkSizeWarningLimit: 3000,
+      rollupOptions: {
+        output: {
+          // Split large dependencies into separate files for better loading performance
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-ui': ['lucide-react'],
+            'vendor-supabase': ['@supabase/supabase-js'],
+            'vendor-genai': ['@google/genai']
+          }
+        }
+      }
     }
   };
 });
