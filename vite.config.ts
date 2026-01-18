@@ -14,17 +14,29 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      // Increase the warning limit to 3000kb (3MB) to handle large GenAI & Supabase libraries
-      // This stops Vercel/Vite from warning about "large chunks" during build
-      chunkSizeWarningLimit: 3000,
+      // Increase limit to 4MB to silence warnings for heavy AI apps
+      chunkSizeWarningLimit: 4096,
       rollupOptions: {
         output: {
-          // Split large dependencies into separate files for better loading performance
-          manualChunks: {
-            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-            'vendor-ui': ['lucide-react'],
-            'vendor-supabase': ['@supabase/supabase-js'],
-            'vendor-genai': ['@google/genai']
+          // Robust function-based chunk splitting
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              // Split specific large vendors
+              if (id.includes('@google/genai')) {
+                return 'vendor-genai';
+              }
+              if (id.includes('@supabase')) {
+                return 'vendor-supabase';
+              }
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+                return 'vendor-react';
+              }
+              if (id.includes('lucide-react')) {
+                return 'vendor-ui';
+              }
+              // Group remaining node_modules to keep the main index.js light
+              return 'vendor-libs';
+            }
           }
         }
       }
