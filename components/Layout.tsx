@@ -22,6 +22,7 @@ import { AppRoute } from '../types';
 import { APP_NAME, ADMIN_EMAIL } from '../constants';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 import { Footer } from './Footer';
+import { AdUnit } from './AdUnit';
 
 const NavLink = ({ to, icon, label, onClick }: { to: string, icon: React.ReactNode, label: string, onClick?: () => void }) => {
   const location = useLocation();
@@ -182,8 +183,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   return (
     <div className="min-h-screen bg-[#0f0e17] text-white flex">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#16161e] border-r border-slate-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-6 flex items-center justify-between">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#16161e] border-r border-slate-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
+        {/* Header - Fixed Top */}
+        <div className="p-6 flex items-center justify-between shrink-0">
           <Link to={AppRoute.HOME} className="flex items-center space-x-2">
             <div className="w-9 h-9 bg-gradient-to-tr from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
               <Sparkles className="w-5 h-5 text-white" fill="currentColor" />
@@ -197,45 +199,49 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </button>
         </div>
 
-        {/* WonderCoins Wallet */}
-        {profile && (
-          <div className="px-6 mb-4">
-            <div className={`bg-gradient-to-r ${profile.is_pro ? 'from-purple-900 to-purple-800 border-purple-500/50' : 'from-slate-900 to-slate-800 border-slate-700/50'} rounded-2xl p-4 border flex items-center justify-between shadow-inner relative overflow-hidden transition-all duration-500`}>
-              <div className="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none"></div>
-              <div className="flex flex-col z-10">
-                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">WonderCoins</span>
-                <span className="text-xl font-black text-yellow-400 flex items-center gap-1">
-                  {wonderCoins.toLocaleString()}
-                </span>
-              </div>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center border z-10 ${profile.is_pro ? 'bg-purple-500/30 border-purple-400 text-yellow-300' : 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400'}`}>
-                {profile.is_pro ? <Crown size={20} fill="currentColor" /> : <Coins size={20} fill="currentColor" />}
+        {/* Scrollable Middle Section */}
+        <div className="flex-1 overflow-y-auto">
+          {/* WonderCoins Wallet */}
+          {profile && (
+            <div className="px-6 mb-4">
+              <div className={`bg-gradient-to-r ${profile.is_pro ? 'from-purple-900 to-purple-800 border-purple-500/50' : 'from-slate-900 to-slate-800 border-slate-700/50'} rounded-2xl p-4 border flex items-center justify-between shadow-inner relative overflow-hidden transition-all duration-500`}>
+                <div className="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-full blur-xl -mr-8 -mt-8 pointer-events-none"></div>
+                <div className="flex flex-col z-10">
+                  <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">WonderCoins</span>
+                  <span className="text-xl font-black text-yellow-400 flex items-center gap-1">
+                    {wonderCoins.toLocaleString()}
+                  </span>
+                </div>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center border z-10 ${profile.is_pro ? 'bg-purple-500/30 border-purple-400 text-yellow-300' : 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400'}`}>
+                  {profile.is_pro ? <Crown size={20} fill="currentColor" /> : <Coins size={20} fill="currentColor" />}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <nav className="px-4 space-y-2">
-          <NavLink to={AppRoute.HOME} icon={<Home size={20} />} label="Lobby" onClick={() => setIsMobileMenuOpen(false)} />
-          
-          <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Creation Studio</div>
-          <NavLink to={AppRoute.IMAGE_DASHBOARD} icon={<Image size={20} />} label="Image Studio" onClick={() => setIsMobileMenuOpen(false)} />
-          <NavLink to={AppRoute.VIDEO_TOOLS} icon={<Video size={20} />} label="Video Studio" onClick={() => setIsMobileMenuOpen(false)} />
-          <NavLink to={AppRoute.DOC_TOOLS} icon={<FileText size={20} />} label="Document AI" onClick={() => setIsMobileMenuOpen(false)} />
+          <nav className="px-4 space-y-2 pb-6">
+            <NavLink to={AppRoute.HOME} icon={<Home size={20} />} label="Lobby" onClick={() => setIsMobileMenuOpen(false)} />
+            
+            <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Creation Studio</div>
+            <NavLink to={AppRoute.IMAGE_DASHBOARD} icon={<Image size={20} />} label="Image Studio" onClick={() => setIsMobileMenuOpen(false)} />
+            <NavLink to={AppRoute.VIDEO_TOOLS} icon={<Video size={20} />} label="Video Studio" onClick={() => setIsMobileMenuOpen(false)} />
+            <NavLink to={AppRoute.DOC_TOOLS} icon={<FileText size={20} />} label="Document AI" onClick={() => setIsMobileMenuOpen(false)} />
 
-          <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Game Center</div>
-          <NavLink to={AppRoute.GAME_LUDO} icon={<Gamepad2 size={20} />} label="Anime Ludo" onClick={() => setIsMobileMenuOpen(false)} />
-          
-          <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Social</div>
-          <NavLink to={AppRoute.FUTURE_SELF} icon={<Sparkles size={20} />} label="Future Self" onClick={() => setIsMobileMenuOpen(false)} />
-          <NavLink to={AppRoute.SOCIAL_FEED} icon={<MessageCircle size={20} />} label="Wonder Feed" onClick={() => setIsMobileMenuOpen(false)} />
-          
-          <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Premium</div>
-          <NavLink to={AppRoute.PRICING} icon={<Crown size={20} />} label="Wonderlands+" onClick={() => setIsMobileMenuOpen(false)} />
-          <NavLink to={AppRoute.SETTINGS} icon={<Settings size={20} />} label="Settings" onClick={() => setIsMobileMenuOpen(false)} />
-        </nav>
+            <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Game Center</div>
+            <NavLink to={AppRoute.GAME_LUDO} icon={<Gamepad2 size={20} />} label="Anime Ludo" onClick={() => setIsMobileMenuOpen(false)} />
+            
+            <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Social</div>
+            <NavLink to={AppRoute.FUTURE_SELF} icon={<Sparkles size={20} />} label="Future Self" onClick={() => setIsMobileMenuOpen(false)} />
+            <NavLink to={AppRoute.SOCIAL_FEED} icon={<MessageCircle size={20} />} label="Wonder Feed" onClick={() => setIsMobileMenuOpen(false)} />
+            
+            <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Premium</div>
+            <NavLink to={AppRoute.PRICING} icon={<Crown size={20} />} label="Wonderlands+" onClick={() => setIsMobileMenuOpen(false)} />
+            <NavLink to={AppRoute.SETTINGS} icon={<Settings size={20} />} label="Settings" onClick={() => setIsMobileMenuOpen(false)} />
+          </nav>
+        </div>
 
-        <div className="absolute bottom-0 w-full p-4 border-t border-slate-800 bg-[#16161e]">
+        {/* Footer - Fixed Bottom */}
+        <div className="p-4 border-t border-slate-800 bg-[#16161e] shrink-0">
            {isAdmin && (
              <div className="mb-4 px-2">
                <Link to={AppRoute.ADMIN} className="flex items-center space-x-2 text-xs font-bold text-red-400 hover:text-red-300 transition-colors p-2 bg-red-950/30 rounded-lg border border-red-900/50">
@@ -294,6 +300,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <div className="flex-1">
             {children}
           </div>
+          
+          {/* Bottom Ad Unit Placement */}
+          <div className="mt-8">
+            <AdUnit type="display" />
+          </div>
+
           <Footer />
         </main>
 

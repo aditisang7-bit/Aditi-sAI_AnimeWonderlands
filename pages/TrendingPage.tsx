@@ -1,5 +1,6 @@
 import React from 'react';
 import { Heart, Share2 } from 'lucide-react';
+import { AdUnit } from '../components/AdUnit';
 
 const TrendCard = ({ img, title, author }: { img: string, title: string, author: string }) => (
   <div className="break-inside-avoid mb-6 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-purple-500/50 transition-all group">
@@ -41,6 +42,12 @@ export const TrendingPage: React.FC = () => {
           title="Cyberpunk Avatar" 
           author="neo_artist" 
         />
+        
+        {/* AD INJECTION inside Masonry Layout */}
+        <div className="break-inside-avoid mb-6">
+           <AdUnit type="display" className="!my-0" />
+        </div>
+
         <TrendCard 
           img="https://picsum.photos/id/20/400/300" 
           title="Minimalist Product Shot" 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppRoute } from '../types';
 import { ArrowRight, Sparkles, Gamepad2, User, Play, Star } from 'lucide-react';
+import { AdUnit } from '../components/AdUnit';
 
 export const LandingPage: React.FC = () => {
   return (
@@ -45,6 +46,9 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Ad Placement: In-Article (Break between Hero and Grid) */}
+      <AdUnit type="in-article" />
+
       {/* Grid */}
       <section className="grid md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 hover:border-pink-500/50 transition-colors group">
@@ -70,6 +74,11 @@ export const LandingPage: React.FC = () => {
           <h3 className="text-2xl font-bold text-white mb-2">Wonder Feed</h3>
           <p className="text-slate-400">Share your gameplay highlights and AI art. Connect with a billion-user anime community.</p>
         </div>
+      </section>
+
+      {/* Ad Placement: Multiplex (Recommendations at bottom) */}
+      <section>
+        <AdUnit type="multiplex" />
       </section>
     </div>
   );

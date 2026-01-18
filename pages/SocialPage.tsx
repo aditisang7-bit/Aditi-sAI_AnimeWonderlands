@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Music2, MessageSquare, Image, Send, Phone, Video, Search, ArrowLeft } from 'lucide-react';
+import { AdUnit } from '../components/AdUnit';
 
 const MOCK_POSTS = [
   {
@@ -85,55 +86,61 @@ const FeedView = () => (
         </div>
 
       <div className="space-y-8">
-        {MOCK_POSTS.map((post) => (
-          <div key={post.id} className="bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 relative snap-center">
-            {/* Header */}
-            <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/60 to-transparent z-10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <img src={post.avatar} alt={post.user} className="w-8 h-8 rounded-full border border-white" />
-                <span className="font-bold text-sm shadow-black drop-shadow-md text-white">{post.user}</span>
-              </div>
-              <button>
-                <MoreHorizontal className="text-white drop-shadow-md" />
-              </button>
+        {MOCK_POSTS.map((post, index) => (
+          <React.Fragment key={post.id}>
+             {/* Feed Post */}
+            <div className="bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 relative snap-center">
+                {/* Header */}
+                <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/60 to-transparent z-10 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <img src={post.avatar} alt={post.user} className="w-8 h-8 rounded-full border border-white" />
+                    <span className="font-bold text-sm shadow-black drop-shadow-md text-white">{post.user}</span>
+                </div>
+                <button>
+                    <MoreHorizontal className="text-white drop-shadow-md" />
+                </button>
+                </div>
+
+                {/* Content */}
+                <div className="relative aspect-[3/4] bg-slate-800">
+                <img src={post.image} alt="Content" className="w-full h-full object-cover" />
+                
+                {/* Overlay Actions */}
+                <div className="absolute right-4 bottom-20 flex flex-col items-center gap-6 z-20">
+                    <div className="flex flex-col items-center gap-1">
+                    <div className="p-3 bg-slate-900/50 backdrop-blur-md rounded-full cursor-pointer hover:bg-slate-800/50 transition-colors">
+                        <Heart size={24} className="text-pink-500" fill="currentColor" />
+                    </div>
+                    <span className="text-xs font-bold text-white shadow-black drop-shadow-sm">{post.likes}</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                    <div className="p-3 bg-slate-900/50 backdrop-blur-md rounded-full cursor-pointer hover:bg-slate-800/50 transition-colors">
+                        <MessageCircle size={24} className="text-white" />
+                    </div>
+                    <span className="text-xs font-bold text-white shadow-black drop-shadow-sm">{post.comments}</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                    <div className="p-3 bg-slate-900/50 backdrop-blur-md rounded-full cursor-pointer hover:bg-slate-800/50 transition-colors">
+                        <Share2 size={24} className="text-white" />
+                    </div>
+                    <span className="text-xs font-bold text-white shadow-black drop-shadow-sm">Share</span>
+                    </div>
+                </div>
+
+                {/* Caption Area */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent pt-20">
+                    <p className="text-sm text-white mb-2 line-clamp-2">{post.caption}</p>
+                    <div className="flex items-center gap-2 text-xs text-slate-300">
+                    <Music2 size={12} />
+                    <span className="truncate">Original Sound - {post.user}</span>
+                    </div>
+                </div>
+                </div>
             </div>
 
-            {/* Content */}
-            <div className="relative aspect-[3/4] bg-slate-800">
-              <img src={post.image} alt="Content" className="w-full h-full object-cover" />
-              
-              {/* Overlay Actions */}
-              <div className="absolute right-4 bottom-20 flex flex-col items-center gap-6 z-20">
-                <div className="flex flex-col items-center gap-1">
-                  <div className="p-3 bg-slate-900/50 backdrop-blur-md rounded-full cursor-pointer hover:bg-slate-800/50 transition-colors">
-                    <Heart size={24} className="text-pink-500" fill="currentColor" />
-                  </div>
-                  <span className="text-xs font-bold text-white shadow-black drop-shadow-sm">{post.likes}</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <div className="p-3 bg-slate-900/50 backdrop-blur-md rounded-full cursor-pointer hover:bg-slate-800/50 transition-colors">
-                    <MessageCircle size={24} className="text-white" />
-                  </div>
-                  <span className="text-xs font-bold text-white shadow-black drop-shadow-sm">{post.comments}</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                   <div className="p-3 bg-slate-900/50 backdrop-blur-md rounded-full cursor-pointer hover:bg-slate-800/50 transition-colors">
-                    <Share2 size={24} className="text-white" />
-                  </div>
-                  <span className="text-xs font-bold text-white shadow-black drop-shadow-sm">Share</span>
-                </div>
-              </div>
-
-              {/* Caption Area */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent pt-20">
-                <p className="text-sm text-white mb-2 line-clamp-2">{post.caption}</p>
-                <div className="flex items-center gap-2 text-xs text-slate-300">
-                   <Music2 size={12} />
-                   <span className="truncate">Original Sound - {post.user}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+            {/* AD INJECTION: Place In-Feed Ad after the first post */}
+            {index === 0 && <AdUnit type="in-feed" />}
+          </React.Fragment>
         ))}
       </div>
   </div>
