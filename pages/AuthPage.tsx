@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppRoute } from '../types';
-import { Zap, Mail, Lock, ArrowRight, Loader2, User, AlertCircle } from 'lucide-react';
+import { Zap, Mail, Lock, ArrowRight, Loader2, User, AlertCircle, Ghost } from 'lucide-react';
 import { APP_NAME } from '../constants';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 
@@ -34,6 +34,15 @@ export const AuthPage: React.FC = () => {
       }
     }
   }, [location]);
+
+  const handleGuestLogin = () => {
+    localStorage.setItem('guest_mode', 'true');
+    // Initialize guest coins if not present
+    if (!localStorage.getItem('guest_coins')) {
+        localStorage.setItem('guest_coins', '500');
+    }
+    navigate(AppRoute.IMAGE_DASHBOARD);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,6 +267,18 @@ export const AuthPage: React.FC = () => {
             )}
           </button>
         </form>
+        
+        {/* Guest Option */}
+        <div className="mt-4 pt-4 border-t border-slate-800">
+           <button 
+             type="button"
+             onClick={handleGuestLogin}
+             className="w-full flex justify-center items-center py-3 px-4 rounded-xl border border-slate-700 bg-slate-950/50 hover:bg-slate-900 hover:border-slate-500 text-slate-300 text-sm font-bold transition-all"
+           >
+              <Ghost className="mr-2 h-4 w-4" />
+              Continue as Guest
+           </button>
+        </div>
         
         {/* Footer */}
         <div className="mt-8 text-center">

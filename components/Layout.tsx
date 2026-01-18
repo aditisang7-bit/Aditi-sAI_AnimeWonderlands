@@ -15,7 +15,8 @@ import {
   Image,
   Video,
   FileText,
-  Cookie
+  Cookie,
+  Ghost
 } from 'lucide-react';
 import { AppRoute } from '../types';
 import { APP_NAME, ADMIN_EMAIL } from '../constants';
@@ -79,7 +80,26 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   const fetchProfile = async () => {
-    if (!isSupabaseConfigured) return;
+    // 1. Check Guest Mode
+    const isGuest = localStorage.getItem('guest_mode') === 'true';
+    if (isGuest) {
+        setProfile({
+            full_name: 'Guest Explorer',
+            email: 'guest@aditis.ai',
+            is_pro: false,
+            id: 'guest'
+        });
+        const guestCoins = parseInt(localStorage.getItem('guest_coins') || '500');
+        setWonderCoins(guestCoins);
+        return;
+    }
+
+    // 2. Check Supabase
+    if (!isSupabaseConfigured) {
+        // Fallback for offline mode without explicit guest flag
+        setProfile(null);
+        return;
+    }
 
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
@@ -90,26 +110,31 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
-
+    // Initial fetch
     fetchProfile();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) ensureProfile(session.user);
-      else setProfile(null);
-    });
-    
-    // Listen for custom event to update coins from game
-    const handleCoinUpdate = () => fetchProfile();
-    window.addEventListener('coin_update', handleCoinUpdate);
 
-    return () => {
-        subscription.unsubscribe();
-        window.removeEventListener('coin_update', handleCoinUpdate);
-    };
+    if (isSupabaseConfigured) {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (session?.user) ensureProfile(session.user);
+          else if (!localStorage.getItem('guest_mode')) setProfile(null);
+        });
+        
+        const handleCoinUpdate = () => fetchProfile();
+        window.addEventListener('coin_update', handleCoinUpdate);
+
+        return () => {
+            subscription.unsubscribe();
+            window.removeEventListener('coin_update', handleCoinUpdate);
+        };
+    } else {
+        const handleCoinUpdate = () => fetchProfile();
+        window.addEventListener('coin_update', handleCoinUpdate);
+        return () => window.removeEventListener('coin_update', handleCoinUpdate);
+    }
   }, []);
 
   useEffect(() => {
-    if (isSupabaseConfigured) fetchProfile();
+    fetchProfile();
   }, [location.pathname]);
 
   const ensureProfile = async (user: any) => {
@@ -139,15 +164,20 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   const handleLogout = async () => {
+    if (localStorage.getItem('guest_mode') === 'true') {
+        localStorage.removeItem('guest_mode');
+    }
     if (isSupabaseConfigured) {
       await supabase.auth.signOut();
     }
+    setProfile(null);
     navigate(AppRoute.LOGIN);
   };
 
   if (isAuthPage) return <div className="min-h-screen bg-[#0f0e17] text-white">{children}</div>;
 
   const isAdmin = profile?.email === ADMIN_EMAIL;
+  const isGuest = profile?.id === 'guest';
 
   return (
     <div className="min-h-screen bg-[#0f0e17] text-white flex">
@@ -224,8 +254,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     <p className="text-sm font-bold text-white truncate flex items-center gap-1">
                       {profile.full_name} 
                       {profile.is_pro && <Crown size={12} className="text-yellow-400" fill="currentColor" />}
+                      {isGuest && <Ghost size={12} className="text-slate-400" />}
                     </p>
-                    <p className="text-xs text-slate-500 truncate">{profile.is_pro ? 'Pro Creator' : 'Beginner'}</p>
+                    <p className="text-xs text-slate-500 truncate">{profile.is_pro ? 'Pro Creator' : (isGuest ? 'Guest User' : 'Beginner')}</p>
                   </div>
                   <button onClick={handleLogout} className="text-slate-500 hover:text-red-400" title="Logout">
                     <LogOut size={16} />
@@ -254,11 +285,17 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </header>
 
         <main className="flex-1 p-4 lg:p-8 overflow-y-auto relative z-10 flex flex-col">
-          {!isSupabaseConfigured && (
+          {!isSupabaseConfigured && !localStorage.getItem('guest_mode') && (
              <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-500/50 rounded-xl text-yellow-200 text-sm flex items-center gap-3">
                 <ShieldAlert size={20} />
                 <span><strong>Demo Mode:</strong> Backend connection is missing. Sign-in and database features are disabled.</span>
              </div>
+          )}
+          {isGuest && (
+              <div className="mb-4 px-4 py-2 bg-slate-900/80 border border-slate-800 rounded-lg text-slate-400 text-xs flex justify-between items-center">
+                  <span>Viewing as Guest. Progress is saved to this browser only.</span>
+                  <Link to={AppRoute.REGISTER} className="text-purple-400 hover:text-white font-bold">Create Account</Link>
+              </div>
           )}
           <div className="flex-1">
             {children}

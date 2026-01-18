@@ -23,24 +23,31 @@ import { Loader2, AlertTriangle } from 'lucide-react';
 const ProtectedRoute = ({ children, requireAdmin = false }: { children?: React.ReactNode, requireAdmin?: boolean }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setLoading(false);
-      return;
-    }
+    const checkAuth = async () => {
+      // Check Guest Mode
+      const guest = localStorage.getItem('guest_mode') === 'true';
+      setIsGuest(guest);
 
-    // Check for supabase session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isSupabaseConfigured) {
+        setLoading(false);
+        return;
+      }
+
+      // Check Supabase Session
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       setLoading(false);
-    });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+      });
+      return () => subscription.unsubscribe();
+    };
 
-    return () => subscription.unsubscribe();
+    checkAuth();
   }, []);
 
   if (loading) {
@@ -51,18 +58,16 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children?: React.R
     );
   }
 
-  // If Supabase is not configured, we redirect to Login (which shows an error) or allow demo access if desired.
-  // For strict protection, we redirect to login.
-  if (!isSupabaseConfigured) {
+  // Allow access if session exists OR is guest
+  // If explicitly requiring admin, guest is not allowed
+  if (!session && !isGuest) {
      return <Navigate to={AppRoute.LOGIN} replace />;
   }
 
-  if (!session) {
-    return <Navigate to={AppRoute.LOGIN} replace />;
-  }
-
-  if (requireAdmin && (!session || session.user.email !== ADMIN_EMAIL)) {
-    return <Navigate to={AppRoute.HOME} replace />;
+  if (requireAdmin) {
+      if (!session || session.user.email !== ADMIN_EMAIL) {
+         return <Navigate to={AppRoute.HOME} replace />;
+      }
   }
 
   return <>{children}</>;

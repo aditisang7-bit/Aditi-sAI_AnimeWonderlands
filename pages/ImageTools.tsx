@@ -82,6 +82,20 @@ export const ImageTools: React.FC = () => {
   }, []);
 
   const checkPlanAndUsage = async () => {
+    // 1. Check if Guest
+    const isGuest = localStorage.getItem('guest_mode') === 'true';
+    const today = new Date().toISOString().split('T')[0];
+
+    if (isGuest) {
+        setUserId('guest');
+        setIsPro(false);
+        const key = `aw_usage_${today}_guest`;
+        const usage = parseInt(localStorage.getItem(key) || '0');
+        setDailyUsage(usage);
+        return;
+    }
+
+    // 2. Check Supabase User
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       setUserId(user.id);
@@ -92,7 +106,6 @@ export const ImageTools: React.FC = () => {
       }
       
       // Load Usage for Free Users
-      const today = new Date().toISOString().split('T')[0];
       const key = `aw_usage_${today}_${user.id}`;
       const usage = parseInt(localStorage.getItem(key) || '0');
       setDailyUsage(usage);
@@ -401,7 +414,7 @@ export const ImageTools: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-white mb-2">Limit Reached</h2>
-                <p className="text-slate-400 text-sm">You've hit the daily limit of {DAILY_LIMIT} generations for the Free Starter plan.</p>
+                <p className="text-slate-400 text-sm">You've hit the daily limit of {DAILY_LIMIT} generations for the Free/Guest plan.</p>
               </div>
               <div className="space-y-3">
                 <Link to={AppRoute.PRICING} className="block w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-transform">
