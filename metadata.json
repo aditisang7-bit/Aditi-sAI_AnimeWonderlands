@@ -1,0 +1,8 @@
+{
+  "name": "Anime Wonderlands+",
+  "description": "The ultimate anime gaming, social, and AI ecosystem.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
