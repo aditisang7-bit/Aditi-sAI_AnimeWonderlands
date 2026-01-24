@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      // Increase limit to 4MB to silence warnings
+      // Increase limit to 4MB to silence warnings, though splitting should fix it
       chunkSizeWarningLimit: 4096,
       rollupOptions: {
         output: {
@@ -28,11 +28,16 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@supabase')) {
                 return 'vendor-supabase';
               }
-              // Group Core React deps to avoid initialization order issues
+              // Group Core React deps
               if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
                   return 'vendor-react';
               }
-              return 'vendor-libs';
+              // Icon library is used everywhere, isolate it
+              if (id.includes('lucide')) {
+                  return 'vendor-icons';
+              }
+              // Let other libraries fall into default chunks or dynamic splits
+              // Removing the catch-all 'vendor-libs' allows Vite to split files based on lazy routes
             }
           }
         }
