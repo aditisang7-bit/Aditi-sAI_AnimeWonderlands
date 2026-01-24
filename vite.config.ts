@@ -12,9 +12,11 @@ export default defineConfig(({ mode }) => {
     define: {
       // CRITICAL FOR VERCEL DEPLOYMENT:
       // Vercel exposes environment variables via process.env during build.
-      // We must explicitly replace 'process.env.API_KEY' in the client code with the actual value.
-      // Priority: process.env.API_KEY (Vercel/System) > env.API_KEY (.env file)
+      // We must explicitly replace 'process.env.VARIABLE' in the client code with the actual value.
       'process.env.API_KEY': JSON.stringify(process.env.API_KEY || env.API_KEY),
+      'process.env.REACT_APP_SUPABASE_URL': JSON.stringify(process.env.REACT_APP_SUPABASE_URL || env.REACT_APP_SUPABASE_URL),
+      'process.env.REACT_APP_SUPABASE_ANON_KEY': JSON.stringify(process.env.REACT_APP_SUPABASE_ANON_KEY || env.REACT_APP_SUPABASE_ANON_KEY),
+      'process.env.REACT_APP_RAZORPAY_KEY_ID': JSON.stringify(process.env.REACT_APP_RAZORPAY_KEY_ID || env.REACT_APP_RAZORPAY_KEY_ID),
     },
     build: {
       outDir: 'dist',

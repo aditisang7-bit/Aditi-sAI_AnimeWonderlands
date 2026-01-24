@@ -5,7 +5,7 @@ import { BOOKS_LINK } from '../constants';
 import { 
   Gamepad2, User, Play, Star, Search, Mic, Camera, ArrowRight, 
   Sparkles, Image as ImageIcon, Video, FileText, Bot, ShoppingBag,
-  BookOpen, Palette, Calculator, Languages
+  BookOpen, Palette, Calculator, Languages, CheckCircle, Gift
 } from 'lucide-react';
 import { AdUnit } from '../components/AdUnit';
 import { SEO } from '../components/SEO';
@@ -44,9 +44,18 @@ const Book3D = ({
              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
              
              {/* Content */}
-             <div className="relative z-10 p-4 flex flex-col h-full items-center text-center border-2 border-white/10 m-2 rounded">
-                 <div className="mt-4 mb-2 p-3 bg-white/20 backdrop-blur-sm rounded-full shadow-lg">
-                    <Icon size={32} className="text-white" />
+             <div className="relative z-10 p-3 flex flex-col h-full items-center text-center border-2 border-white/10 m-2 rounded">
+                 
+                 {/* Branding Logo */}
+                 <div className="mb-2 flex items-center gap-1.5 px-2 py-1 bg-black/20 backdrop-blur-md rounded-full border border-white/10 shadow-sm">
+                    <div className="w-4 h-4 bg-gradient-to-tr from-pink-500 to-purple-600 rounded-full flex items-center justify-center shadow-inner">
+                        <Sparkles size={8} className="text-white" fill="currentColor"/>
+                    </div>
+                    <span className="text-[8px] font-bold text-white/95 uppercase tracking-widest">Wonderlands</span>
+                 </div>
+
+                 <div className="mt-1 mb-2 p-3 bg-white/20 backdrop-blur-sm rounded-full shadow-lg border border-white/30">
+                    <Icon size={28} className="text-white" />
                  </div>
                  <h3 className={`font-black text-2xl md:text-3xl leading-none mb-1 text-white drop-shadow-md`}>{title}</h3>
                  <p className={`text-xs md:text-sm font-bold uppercase tracking-wider ${c.text}`}>{subtitle}</p>
@@ -64,8 +73,10 @@ const Book3D = ({
         </div>
 
         {/* Spine */}
-        <div className={`absolute top-0 left-0 w-[20px] h-full ${c.spine} transform rotate-y-90 origin-left border-r border-black/10 flex items-center justify-center`}>
-             <span className="text-white font-bold text-xs tracking-widest rotate-90 whitespace-nowrap opacity-80">{title}</span>
+        <div className={`absolute top-0 left-0 w-[20px] h-full ${c.spine} transform rotate-y-90 origin-left border-r border-black/10 flex items-center justify-center overflow-hidden`}>
+             <span className="text-white font-bold text-xs tracking-widest rotate-90 whitespace-nowrap opacity-80 flex items-center gap-2">
+               <Sparkles size={8} fill="currentColor"/> {title}
+             </span>
         </div>
 
         {/* Pages (Right Side) */}
@@ -289,7 +300,7 @@ export const LandingPage: React.FC = () => {
         </Link>
       </section>
 
-      {/* BOOKS COLLECTION BANNER (PREMIUM REDESIGN WITH CHARACTERS) */}
+      {/* BOOKS COLLECTION BANNER (UPDATED WITH LOGO & CONTENT) */}
       <section className="relative my-20">
         {/* Background Layer */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-slate-800 rounded-[2.5rem] shadow-2xl -z-20 overflow-hidden">
@@ -303,26 +314,50 @@ export const LandingPage: React.FC = () => {
         <div className="relative z-10 grid lg:grid-cols-2 gap-12 p-8 md:p-12 items-center">
             
             {/* Left: Content */}
-            <div className="space-y-8">
-                <div>
-                   <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 rounded-full text-white text-xs font-bold shadow-lg mb-4">
-                      <Star size={12} fill="currentColor" />
-                      <span>Best-Selling Kids Series</span>
+            <div className="space-y-6">
+                
+                {/* Branding Logo Area */}
+                <div className="flex items-center gap-3 mb-2 animate-fade-in">
+                   <div className="w-10 h-10 bg-gradient-to-tr from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-900/30">
+                      <Sparkles size={20} className="text-white" fill="currentColor"/>
                    </div>
-                   <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">
-                      Anime Wonderlands <br/>
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400">Ultimate Collection</span>
+                   <span className="text-xl font-black text-white tracking-tight drop-shadow-md">Anime Wonderlands</span>
+                </div>
+
+                <div>
+                   <h2 className="text-3xl md:text-5xl font-black text-white leading-tight drop-shadow-2xl">
+                      Ultimate Collection <br/>
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400 text-2xl md:text-4xl">Activity & Practice Books for Kids</span>
                    </h2>
                 </div>
                 
-                <p className="text-slate-300 text-lg leading-relaxed max-w-lg">
-                   Turn screen time into learning time. Our premium activity books cover <strong>Maths, English, GK, and Art</strong> using engaging anime characters that kids actually love.
+                <p className="text-slate-300 text-lg leading-relaxed font-medium">
+                   Specially designed to reduce screen dependency and increase creativity, focus, and confidence.
                 </p>
 
-                <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-                    <span className="bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700 flex items-center gap-2"><Calculator size={14} className="text-red-400"/> Maths</span>
-                    <span className="bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700 flex items-center gap-2"><Languages size={14} className="text-blue-400"/> English</span>
-                    <span className="bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700 flex items-center gap-2"><Palette size={14} className="text-pink-400"/> Drawing</span>
+                {/* Features List */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 text-sm font-bold text-slate-200">
+                    <div className="flex items-center gap-2 p-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                        <CheckCircle size={18} className="text-red-400 shrink-0" /> 
+                        <span>Maths</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                        <CheckCircle size={18} className="text-blue-400 shrink-0" /> 
+                        <span>English, Poems & Stories</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                        <CheckCircle size={18} className="text-yellow-400 shrink-0" /> 
+                        <span>EVS & GK</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                        <CheckCircle size={18} className="text-pink-400 shrink-0" /> 
+                        <span>Drawing & Art</span>
+                    </div>
+                </div>
+
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-900/30 border border-yellow-500/30 rounded-full text-yellow-300 text-sm font-bold mt-2">
+                   <Gift size={14} />
+                   <span>Ideal for home learning & gifting 🎁</span>
                 </div>
 
                 <div className="pt-4">
@@ -333,7 +368,7 @@ export const LandingPage: React.FC = () => {
                       className="inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-lg hover:bg-orange-50 hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] group"
                     >
                         <ShoppingBag className="text-orange-600 group-hover:scale-110 transition-transform" />
-                        <span>Order Collection</span>
+                        <span>Order the Complete Collection+</span>
                         <ArrowRight size={20} className="text-slate-400 group-hover:translate-x-1 transition-transform" />
                     </a>
                 </div>
@@ -343,9 +378,8 @@ export const LandingPage: React.FC = () => {
             <div className="relative h-[400px] flex items-center justify-center perspective-[1000px] group/scene">
                 
                 {/* ANIME GIRL (LEFT) */}
-                <div className="absolute left-0 bottom-8 z-30 transform md:-translate-x-4 transition-transform duration-500 group-hover/scene:-translate-x-8">
+                <div className="absolute left-0 bottom-8 z-30 transform md:-translate-x-4 transition-transform duration-500 group-hover/scene:-translate-x-8 pointer-events-none">
                     <div className="relative w-28 h-28 md:w-36 md:h-36">
-                        {/* Placeholder using DiceBear Notionists Style which is clean & illustrative */}
                         <img 
                             src="https://api.dicebear.com/9.x/notionists/svg?seed=Mila&backgroundColor=e9d5ff" 
                             alt="Anime Girl"
@@ -358,7 +392,7 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 {/* ANIME BOY (RIGHT) */}
-                <div className="absolute right-0 bottom-8 z-30 transform md:translate-x-4 transition-transform duration-500 group-hover/scene:translate-x-8">
+                <div className="absolute right-0 bottom-8 z-30 transform md:translate-x-4 transition-transform duration-500 group-hover/scene:translate-x-8 pointer-events-none">
                     <div className="relative w-28 h-28 md:w-36 md:h-36">
                         <img 
                             src="https://api.dicebear.com/9.x/notionists/svg?seed=Felix&backgroundColor=fed7aa" 
@@ -398,8 +432,8 @@ export const LandingPage: React.FC = () => {
                 {/* Book 1: Master Collection (Center Front) */}
                 <div className="absolute transform translate-z-[50px] hover:scale-105 transition-transform duration-500 z-20">
                     <Book3D 
-                      title="MASTER" 
-                      subtitle="The Complete Kit" 
+                      title="ULTIMATE" 
+                      subtitle="Complete Collection" 
                       color="yellow" 
                       icon={BookOpen}
                       rotateClass="rotate-y-[0deg]"
