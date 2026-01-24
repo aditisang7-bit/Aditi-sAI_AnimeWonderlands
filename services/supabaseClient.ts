@@ -19,6 +19,8 @@ export const isSupabaseConfigured = !!supabaseUrl && !!supabaseAnonKey;
 
 if (!isSupabaseConfigured) {
   console.warn('Supabase credentials missing. Authentication will be disabled.');
+} else {
+  console.log('Aditi\'s AI: Connected to Supabase at', supabaseUrl);
 }
 
 // Initialize the Supabase client

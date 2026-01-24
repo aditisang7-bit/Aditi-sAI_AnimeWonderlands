@@ -7,6 +7,10 @@ export default defineConfig(({ mode }) => {
   // This picks up .env files locally.
   const env = loadEnv(mode, (process as any).cwd(), '');
 
+  // NEW CREDENTIALS (Aditis AI)
+  const SUPABASE_URL = "https://odicapopaiaijxsnzlvy.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kaWNhcG9wYWlhaWp4c256bHZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMTQ5NjMsImV4cCI6MjA4Mzg5MDk2M30.zXARRDd5DH8HkpE_CqVrb3nh9QiAO0LmBxwA_9RxTJU";
+
   return {
     plugins: [react()],
     define: {
@@ -14,9 +18,9 @@ export default defineConfig(({ mode }) => {
       // Vercel exposes environment variables via process.env during build.
       // We must explicitly replace 'process.env.VARIABLE' in the client code with the actual value.
       'process.env.API_KEY': JSON.stringify(process.env.API_KEY || env.API_KEY),
-      // Inject Supabase credentials from environment variables ONLY
-      'process.env.REACT_APP_SUPABASE_URL': JSON.stringify(process.env.REACT_APP_SUPABASE_URL || env.REACT_APP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL),
-      'process.env.REACT_APP_SUPABASE_ANON_KEY': JSON.stringify(process.env.REACT_APP_SUPABASE_ANON_KEY || env.REACT_APP_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+      // Inject Supabase credentials (using provided fallback if env vars are missing)
+      'process.env.REACT_APP_SUPABASE_URL': JSON.stringify(process.env.REACT_APP_SUPABASE_URL || env.REACT_APP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL),
+      'process.env.REACT_APP_SUPABASE_ANON_KEY': JSON.stringify(process.env.REACT_APP_SUPABASE_ANON_KEY || env.REACT_APP_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY),
       'process.env.REACT_APP_RAZORPAY_KEY_ID': JSON.stringify(process.env.REACT_APP_RAZORPAY_KEY_ID || env.REACT_APP_RAZORPAY_KEY_ID),
     },
     build: {
