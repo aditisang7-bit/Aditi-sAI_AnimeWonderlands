@@ -136,7 +136,7 @@ export const LandingPage: React.FC = () => {
   };
 
   const QUICK_ACTIONS = [
-    { label: "Generate Avatar", icon: <User size={14} />, query: "Create an anime avatar based on a description" },
+    { label: "Generate Avatar", icon: <User size={14} />, route: AppRoute.IMAGE_DASHBOARD, state: { autoGenPrompt: "Create an anime avatar" } },
     { label: "Play Ludo", icon: <Gamepad2 size={14} />, route: null, isComingSoon: true },
     { label: "Analyze Doc", icon: <FileText size={14} />, route: AppRoute.DOC_TOOLS },
     { label: "Create Video", icon: <Video size={14} />, route: AppRoute.VIDEO_TOOLS },
@@ -222,8 +222,8 @@ export const LandingPage: React.FC = () => {
                onClick={() => {
                  if (action.isComingSoon) return;
                  playUiSound('click');
-                 if (action.route) navigate(action.route);
-                 else if (action.query) navigate(AppRoute.AI_ASSISTANT, { state: { initialQuery: action.query, autoSend: true } });
+                 if (action.route) navigate(action.route, { state: (action as any).state });
+                 else if ((action as any).query) navigate(AppRoute.AI_ASSISTANT, { state: { initialQuery: (action as any).query, autoSend: true } });
                }}
                onMouseEnter={() => !action.isComingSoon && playUiSound('hover')}
                className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm font-medium transition-all ${

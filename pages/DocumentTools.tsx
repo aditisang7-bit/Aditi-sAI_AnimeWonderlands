@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { processDocumentText, fileToGenerativePart, analyzeImageContent } from '../services/geminiService';
 import { PROMPTS } from '../constants';
-import { Loader2, FileText, CheckCircle, AlertTriangle, BookOpen, Camera, Download, HelpCircle, X } from 'lucide-react';
+import { Loader2, FileText, CheckCircle, AlertTriangle, BookOpen, Camera, Download, HelpCircle, X, SwitchCamera } from 'lucide-react';
 import { FileUpload } from '../components/FileUpload';
 
 type DocMode = 'SUMMARIZE' | 'PLAGIARISM' | 'REWRITE' | 'SOLVE';
@@ -15,14 +15,20 @@ export const DocumentTools: React.FC = () => {
   
   // Camera
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const startCamera = async () => {
+  const startCamera = async (mode?: 'user' | 'environment') => {
+    const targetMode = mode || facingMode;
     setIsCameraOpen(true);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      if (streamRef.current) {
+         streamRef.current.getTracks().forEach(t => t.stop());
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: targetMode } });
       streamRef.current = stream;
+      setFacingMode(targetMode);
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -33,6 +39,11 @@ export const DocumentTools: React.FC = () => {
       console.error(err);
       setIsCameraOpen(false);
     }
+  };
+
+  const toggleCamera = () => {
+     const newMode = facingMode === 'environment' ? 'user' : 'environment';
+     startCamera(newMode);
   };
 
   const captureImage = () => {
@@ -127,7 +138,7 @@ export const DocumentTools: React.FC = () => {
           <button 
             key={mode.id}
             onClick={() => { setActiveMode(mode.id as DocMode); setResult(null); }}
-            className={`px-6 py-3 rounded-xl border flex items-center space-x-2 transition-all ${activeMode === mode.id ? `bg-${mode.color}-600 border-${mode.color}-400 text-white` : 'bg-slate-900 border-slate-800 text-slate-400'}`}
+            className={`px-6 py-3 rounded-xl border flex items-center space-x-2 transition-all ${activeMode === mode.id ? `bg-${mode.color}-600 border-${mode.color}-400 text-white` : 'bg-slate-950 border-slate-800 text-slate-400'}`}
           >
             {mode.icon} <span>{mode.label}</span>
           </button>
@@ -142,7 +153,7 @@ export const DocumentTools: React.FC = () => {
             
             {!isCameraOpen ? (
               <div className="space-y-4">
-                <button onClick={startCamera} className="w-full py-3 bg-slate-950 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:border-purple-500 flex items-center justify-center gap-2">
+                <button onClick={() => startCamera()} className="w-full py-3 bg-slate-950 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:border-purple-500 flex items-center justify-center gap-2">
                    <Camera size={20} /> <span>Scan Document</span>
                 </button>
 
@@ -168,7 +179,11 @@ export const DocumentTools: React.FC = () => {
             ) : (
               <div className="relative bg-black rounded-xl overflow-hidden aspect-[3/4]">
                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                 
                  <button onClick={stopCamera} className="absolute top-2 right-2 p-2 bg-black/50 rounded-full text-white"><X size={20}/></button>
+                 {/* Toggle Button */}
+                 <button onClick={toggleCamera} className="absolute top-2 left-2 p-2 bg-black/50 rounded-full text-white"><SwitchCamera size={20}/></button>
+
                  <button onClick={captureImage} className="absolute bottom-4 left-1/2 -translate-x-1/2 w-14 h-14 bg-white rounded-full border-4 border-slate-400"></button>
               </div>
             )}

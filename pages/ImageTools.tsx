@@ -9,7 +9,7 @@ import {
   Loader2, Download, Wand2, RefreshCw, Smartphone, 
   ShoppingBag, Type, GraduationCap, Image as ImageIcon,
   Sliders, Move, Save, CheckCircle, Maximize, Crop, FileImage, Sparkles,
-  Camera, Zap, HeartPulse, AlertTriangle, Utensils, FileText, Leaf, Search, ScanFace, Flame, User, Youtube, Grid, LayoutTemplate, Palette, Lock, Crown, X
+  Camera, Zap, HeartPulse, AlertTriangle, Utensils, FileText, Leaf, Search, ScanFace, Flame, User, Youtube, Grid, LayoutTemplate, Palette, Lock, Crown, X, SwitchCamera
 } from 'lucide-react';
 
 type TabMode = 'APPS' | 'GENERATE' | 'EDIT' | 'MOCKUP' | 'LOGO' | 'EDU';
@@ -51,6 +51,7 @@ export const ImageTools: React.FC = () => {
   // Camera State
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [flash, setFlash] = useState(false);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -96,10 +97,6 @@ export const ImageTools: React.FC = () => {
   }, []);
 
   const handleAutoGenerate = async (prompt: string) => {
-    // Basic guard for usage
-    // Note: checking 'dailyUsage' here might be stale due to closure, 
-    // but checkPlanAndUsage will update it. For robustness, we'll assume valid for first try or check limit inside.
-    
     setLoading(true);
     setGeneratedImage(null);
     setError(null);
@@ -149,14 +146,8 @@ export const ImageTools: React.FC = () => {
   };
 
   const incrementUsage = () => {
-    // We check `isPro` ref or state. Since we are in function, we use state.
-    // NOTE: This might be slightly stale if called immediately after mount, 
-    // but for the sake of UX flow we allow the first auto-gen.
-    
     const today = new Date().toISOString().split('T')[0];
     const key = `aw_usage_${today}_${userId || 'guest'}`; 
-    
-    // Get fresh value from storage to be safe
     const current = parseInt(localStorage.getItem(key) || '0');
     const newCount = current + 1;
     localStorage.setItem(key, newCount.toString());
@@ -244,10 +235,17 @@ export const ImageTools: React.FC = () => {
   };
 
   // --- Camera Logic ---
-  const startCamera = async () => {
+  const startCamera = async (mode?: 'user' | 'environment') => {
+    const targetMode = mode || facingMode;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      // Stop existing tracks
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: targetMode } });
       streamRef.current = stream;
+      setFacingMode(targetMode);
       setIsCameraActive(true);
       setTimeout(() => {
         if (videoRef.current) {
@@ -261,6 +259,11 @@ export const ImageTools: React.FC = () => {
   const stopCamera = () => {
     streamRef.current?.getTracks().forEach(t => t.stop());
     setIsCameraActive(false);
+  };
+
+  const toggleCamera = () => {
+    const newMode = facingMode === 'environment' ? 'user' : 'environment';
+    startCamera(newMode);
   };
 
   const captureImage = () => {
@@ -524,7 +527,7 @@ export const ImageTools: React.FC = () => {
                         </div>
                         
                         {/* CAMERA TRIGGER BUTTON */}
-                        <button onClick={startCamera} className="w-full py-4 bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/50 hover:bg-blue-900/60 rounded-xl flex flex-col items-center justify-center text-blue-200 hover:text-white transition-all shadow-lg">
+                        <button onClick={() => startCamera()} className="w-full py-4 bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/50 hover:bg-blue-900/60 rounded-xl flex flex-col items-center justify-center text-blue-200 hover:text-white transition-all shadow-lg">
                           <Camera size={28} className="mb-2" />
                           <span className="font-bold">Take Photo & Analyze</span>
                         </button>
@@ -533,7 +536,11 @@ export const ImageTools: React.FC = () => {
                       <div className="relative overflow-hidden rounded-xl bg-black aspect-video group">
                          <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
                          <div className={`absolute inset-0 bg-white transition-opacity duration-300 ${flash ? 'opacity-100' : 'opacity-0'} pointer-events-none`}></div>
+                         
                          <button onClick={stopCamera} className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white"><X size={20}/></button>
+                         {/* Toggle Button */}
+                         <button onClick={toggleCamera} className="absolute top-4 left-4 p-2 bg-black/50 rounded-full text-white"><SwitchCamera size={20}/></button>
+
                          <button onClick={captureImage} className="absolute bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-white rounded-full border-4 border-slate-300 hover:scale-110 transition-transform"></button>
                       </div>
                     )}

@@ -1,7 +1,7 @@
--- Copy and paste this into your Supabase SQL Editor to set up the backend.
+-- Run this in Supabase SQL Editor to set up your database
 
--- 1. Profiles Table (Stores user data, coins, and pro status)
--- This extends the default auth.users table.
+-- 1. PROFILES (Extends Auth Users)
+-- Stores user coins, pro status, and plan details
 CREATE TABLE public.profiles (
   id uuid NOT NULL REFERENCES auth.users ON DELETE CASCADE,
   email text,
@@ -15,7 +15,8 @@ CREATE TABLE public.profiles (
   PRIMARY KEY (id)
 );
 
--- 2. Orders Table (Stores payment history)
+-- 2. ORDERS (Payment History)
+-- Tracks Razorpay payments for subscriptions
 CREATE TABLE public.orders (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
@@ -27,19 +28,21 @@ CREATE TABLE public.orders (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 3. Generations History (Tracks AI usage to enforce limits or show history)
+-- 3. GENERATIONS (AI Usage Log)
+-- Keeps a record of all AI tools used (Image, Video, Doc) for history and limits
 CREATE TABLE public.generations (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-  tool_type text NOT NULL, -- e.g., 'image', 'video', 'doc'
+  tool_type text NOT NULL, -- 'image', 'video', 'doc', 'chat'
   prompt text,
-  result_url text, -- Store image URL or text summary
+  result_url text, -- Can be image URL or text result
   cost integer DEFAULT 1,
   metadata jsonb,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 4. Social Posts (For the Wonder Feed)
+-- 4. SOCIAL POSTS (Wonder Feed)
+-- Stores community shared content
 CREATE TABLE public.social_posts (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
@@ -50,58 +53,32 @@ CREATE TABLE public.social_posts (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 5. Enable Row Level Security (RLS) - CRITICAL FOR SECURITY
+-- 5. SECURITY (Row Level Security)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.generations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.social_posts ENABLE ROW LEVEL SECURITY;
 
--- 6. RLS Policies
+-- Policies
+-- Profiles: Public read (for feed), Owner write
+CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
--- Profiles: 
--- Everyone can read basic profile info (needed for social feed avatars/names)
-CREATE POLICY "Public profiles are viewable by everyone" 
-ON public.profiles FOR SELECT USING (true);
+-- Orders: Owner read only
+CREATE POLICY "Users can view own orders" ON public.orders FOR SELECT USING (auth.uid() = user_id);
 
--- Users can insert their own profile (used during signup)
-CREATE POLICY "Users can insert their own profile" 
-ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+-- Generations: Owner read/write
+CREATE POLICY "Users can view own generations" ON public.generations FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own generations" ON public.generations FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- Users can update their own profile (e.g. change name)
-CREATE POLICY "Users can update own profile" 
-ON public.profiles FOR UPDATE USING (auth.uid() = id);
+-- Social Posts: Public read, Owner write
+CREATE POLICY "Posts are viewable by everyone" ON public.social_posts FOR SELECT USING (true);
+CREATE POLICY "Users can create posts" ON public.social_posts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own posts" ON public.social_posts FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own posts" ON public.social_posts FOR DELETE USING (auth.uid() = user_id);
 
--- Orders: 
--- Users can only see their own orders
-CREATE POLICY "Users can view own orders" 
-ON public.orders FOR SELECT USING (auth.uid() = user_id);
-
--- Generations:
--- Users can only see/create their own generation history
-CREATE POLICY "Users can view own generations" 
-ON public.generations FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own generations" 
-ON public.generations FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- Social Posts:
--- Everyone can view posts
-CREATE POLICY "Posts are viewable by everyone" 
-ON public.social_posts FOR SELECT USING (true);
-
--- Authenticated users can create posts
-CREATE POLICY "Users can create posts" 
-ON public.social_posts FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- Users can update/delete ONLY their own posts
-CREATE POLICY "Users can update own posts" 
-ON public.social_posts FOR UPDATE USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own posts" 
-ON public.social_posts FOR DELETE USING (auth.uid() = user_id);
-
--- 7. Automatic Profile Creation Trigger (Backup)
--- This ensures a profile is created even if the frontend signup logic misses it (e.g. via OAuth)
+-- 6. TRIGGER (Auto-create Profile)
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS trigger AS $$
 BEGIN

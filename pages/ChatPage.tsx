@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { Send, Mic, Camera, Image as ImageIcon, Loader2, Bot, User, X, Sparkles, AlertCircle } from 'lucide-react';
+import { Send, Mic, Camera, Image as ImageIcon, Loader2, Bot, User, X, Sparkles, AlertCircle, SwitchCamera } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { fileToGenerativePart } from '../services/geminiService';
 
@@ -22,6 +22,7 @@ export const ChatPage: React.FC = () => {
   
   // Camera State
   const [showCamera, setShowCamera] = useState(false);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   
@@ -138,11 +139,16 @@ export const ChatPage: React.FC = () => {
     };
   };
 
-  const startCamera = async () => {
+  const startCamera = async (mode?: 'user' | 'environment') => {
+    const targetMode = mode || facingMode;
     setShowCamera(true);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: targetMode } });
       streamRef.current = stream;
+      setFacingMode(targetMode);
       setTimeout(() => {
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
@@ -154,6 +160,11 @@ export const ChatPage: React.FC = () => {
       setShowCamera(false);
       alert("Could not access camera. Please check permissions.");
     }
+  };
+  
+  const toggleCamera = () => {
+     const newMode = facingMode === 'environment' ? 'user' : 'environment';
+     startCamera(newMode);
   };
 
   const capturePhoto = () => {
@@ -236,7 +247,11 @@ export const ChatPage: React.FC = () => {
       {showCamera && (
         <div className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center animate-fade-in">
            <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
+           
            <button onClick={stopCamera} className="absolute top-6 right-6 p-3 bg-black/50 rounded-full text-white z-50 hover:bg-black/70 transition-colors"><X size={24} /></button>
+           
+           {/* Camera Toggle Button */}
+           <button onClick={toggleCamera} className="absolute top-6 left-6 p-3 bg-black/50 rounded-full text-white z-50 hover:bg-black/70 transition-colors"><SwitchCamera size={24} /></button>
            
            <div className="absolute bottom-10 w-full flex justify-center z-50">
                <button onClick={capturePhoto} className="w-20 h-20 bg-white rounded-full border-4 border-slate-300 shadow-[0_0_30px_rgba(255,255,255,0.4)] hover:scale-110 active:scale-95 transition-all"></button>
@@ -254,7 +269,7 @@ export const ChatPage: React.FC = () => {
           </div>
         )}
         <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-2xl border border-slate-800 focus-within:border-purple-500/50 focus-within:bg-slate-900/80 transition-all shadow-inner">
-           <button onClick={startCamera} className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Use Camera">
+           <button onClick={() => startCamera()} className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Use Camera">
              <Camera size={20} />
            </button>
            <button onClick={handleVoiceInput} className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Voice Input">

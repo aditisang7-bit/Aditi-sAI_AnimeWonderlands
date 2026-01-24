@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, FileText, Mail, Users, MapPin } from 'lucide-react';
+import { Shield, FileText, Mail, Users, MapPin, BookOpen, ExternalLink } from 'lucide-react';
 
 const LegalLayout: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
   <div className="max-w-4xl mx-auto py-12 px-4 animate-fade-in">
@@ -35,6 +35,17 @@ export const PrivacyPage: React.FC = () => (
 
     <h3>4. Cookies</h3>
     <p>We use cookies to distinguish you from other users of our website. This helps us to provide you with a good experience when you browse our website and also allows us to improve our site.</p>
+
+    <h3>5. Books & Store Policy (Anime Wonderlands Collection)</h3>
+    <p>We offer "Anime Wonderlands" activity books and merchandise. These physical products are sold and fulfilled through our partner platform, <strong>SmartBiz</strong>.</p>
+    <p>Any data provided during the purchase of physical books (such as shipping address and payment details) is handled directly by SmartBiz. We do not store this specific transaction data on our servers.</p>
+    <div className="bg-slate-900 p-4 rounded-lg border border-slate-800 mt-4">
+       <p className="mb-2 font-bold text-white flex items-center gap-2"><BookOpen size={16}/> Specific Store Policy</p>
+       <p className="text-sm">For full details regarding shipping, returns, and data handling for book purchases, please refer to the official policy here:</p>
+       <a href="https://www.smartbiz.in/AnimeWonderlands/policy/termsAndConditions" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 font-bold inline-flex items-center gap-1 mt-2">
+         View Store Terms & Conditions <ExternalLink size={14}/>
+       </a>
+    </div>
   </LegalLayout>
 );
 
@@ -51,6 +62,15 @@ export const TermsPage: React.FC = () => (
 
     <h3>4. Limitations</h3>
     <p>In no event shall Aditi's AI or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Aditi's AI's website.</p>
+
+    <h3>5. Store & Physical Products (Books)</h3>
+    <p>The "Anime Wonderlands" book collection listed on this site is fulfilled by SmartBiz. By clicking to purchase these items, you will be redirected to the SmartBiz platform.</p>
+    <p>All purchases of physical goods are subject to the terms and conditions provided by the fulfillment partner. You can review these terms here:</p>
+    <p>
+      <a href="https://www.smartbiz.in/AnimeWonderlands/policy/termsAndConditions" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline break-all">
+        https://www.smartbiz.in/AnimeWonderlands/policy/termsAndConditions
+      </a>
+    </p>
   </LegalLayout>
 );
 
