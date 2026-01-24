@@ -3,6 +3,7 @@ import { AppRoute } from './types';
 
 export const APP_NAME = "Aditi's AI";
 export const ADMIN_EMAIL = "admin@animewonderlands.com";
+export const BOOKS_LINK = "https://www.smartbiz.in/AnimeWonderlands";
 
 // --- GAME ECONOMICS ---
 export const GAME_CONFIG = {

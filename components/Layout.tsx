@@ -20,10 +20,11 @@ import {
   Bot,
   Volume2,
   VolumeX,
-  Palette
+  Palette,
+  ShoppingBag
 } from 'lucide-react';
 import { AppRoute } from '../types';
-import { APP_NAME, ADMIN_EMAIL } from '../constants';
+import { APP_NAME, ADMIN_EMAIL, BOOKS_LINK } from '../constants';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 import { Footer } from './Footer';
 import { AdUnit } from './AdUnit';
@@ -275,6 +276,19 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <NavLink to={AppRoute.IMAGE_DASHBOARD} icon={<Image size={20} />} label="Image Studio" onClick={() => setIsMobileMenuOpen(false)} />
             <NavLink to={AppRoute.VIDEO_TOOLS} icon={<Video size={20} />} label="Video Studio" onClick={() => setIsMobileMenuOpen(false)} />
             <NavLink to={AppRoute.DOC_TOOLS} icon={<FileText size={20} />} label="Document AI" onClick={() => setIsMobileMenuOpen(false)} />
+
+            <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Store</div>
+            <a 
+              href={BOOKS_LINK} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group text-slate-400 hover:bg-slate-800 hover:text-white"
+            >
+               <span className="text-slate-400 group-hover:text-orange-400">
+                  <ShoppingBag size={20} />
+               </span>
+               <span className="font-bold tracking-wide">Books & Comics</span>
+            </a>
 
             <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Game Center</div>
             <div className="relative group cursor-not-allowed px-4 py-3 flex items-center space-x-3 rounded-xl text-slate-500 hover:bg-slate-800/50 transition-colors">

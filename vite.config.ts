@@ -4,40 +4,29 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
-  const env = loadEnv(mode, process.cwd(), '');
+  // This picks up .env files locally.
+  const env = loadEnv(mode, (process as any).cwd(), '');
 
   return {
     plugins: [react()],
     define: {
-      // Safely stringify the env object so 'process.env' becomes a valid JS object in the browser
-      'process.env': JSON.stringify(env)
+      // CRITICAL FOR VERCEL DEPLOYMENT:
+      // Vercel exposes environment variables via process.env during build.
+      // We must explicitly replace 'process.env.API_KEY' in the client code with the actual value.
+      // Priority: process.env.API_KEY (Vercel/System) > env.API_KEY (.env file)
+      'process.env.API_KEY': JSON.stringify(process.env.API_KEY || env.API_KEY),
     },
     build: {
       outDir: 'dist',
-      // Increase limit to 4MB to silence warnings, though splitting should fix it
       chunkSizeWarningLimit: 4096,
       rollupOptions: {
         output: {
-          // Robust chunk splitting
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              // Split huge independent libraries
-              if (id.includes('@google/genai')) {
-                return 'vendor-genai';
-              }
-              if (id.includes('@supabase')) {
-                return 'vendor-supabase';
-              }
-              // Group Core React deps
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-                  return 'vendor-react';
-              }
-              // Icon library is used everywhere, isolate it
-              if (id.includes('lucide')) {
-                  return 'vendor-icons';
-              }
-              // Let other libraries fall into default chunks or dynamic splits
-              // Removing the catch-all 'vendor-libs' allows Vite to split files based on lazy routes
+              if (id.includes('@google/genai')) return 'vendor-genai';
+              if (id.includes('@supabase')) return 'vendor-supabase';
+              if (id.includes('react')) return 'vendor-react';
+              if (id.includes('lucide')) return 'vendor-icons';
             }
           }
         }
