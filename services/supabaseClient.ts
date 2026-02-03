@@ -1,31 +1,41 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Helper to safely get env vars without crashing if process is undefined
-const getEnvVar = (key: string) => {
+// Specific fallback credentials for Aditi's AI
+const FALLBACK_URL = "https://odicapopaiaijxsnzlvy.supabase.co";
+const FALLBACK_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kaWNhcG9wYWlhaWp4c256bHZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMTQ5NjMsImV4cCI6MjA4Mzg5MDk2M30.zXARRDd5DH8HkpE_CqVrb3nh9QiAO0LmBxwA_9RxTJU";
+
+// Helper to safely access env vars. 
+// We must access properties DIRECTLY (e.g. process.env.REACT_APP_SUPABASE_URL) 
+// so that Vite's define plugin can replace them with string literals during build.
+const getUrl = () => {
   try {
-    return process.env[key];
-  } catch (e) {
-    return undefined;
-  }
+    return process.env.REACT_APP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  } catch { return undefined; }
 };
 
-const envUrl = getEnvVar('REACT_APP_SUPABASE_URL') || getEnvVar('NEXT_PUBLIC_SUPABASE_URL');
-const envKey = getEnvVar('REACT_APP_SUPABASE_ANON_KEY') || getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+const getKey = () => {
+  try {
+    return process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  } catch { return undefined; }
+};
 
-const supabaseUrl = envUrl;
-const supabaseAnonKey = envKey;
+// Use Env vars if available (and not undefined string), otherwise use fallback
+const rawUrl = getUrl();
+const rawKey = getKey();
+
+const supabaseUrl = (rawUrl && rawUrl !== 'undefined') ? rawUrl : FALLBACK_URL;
+const supabaseAnonKey = (rawKey && rawKey !== 'undefined') ? rawKey : FALLBACK_KEY;
 
 export const isSupabaseConfigured = !!supabaseUrl && !!supabaseAnonKey;
 
 if (!isSupabaseConfigured) {
   console.warn('Supabase credentials missing. Authentication will be disabled.');
 } else {
-  console.log('Aditi\'s AI: Connected to Supabase at', supabaseUrl);
+  // Safe log to confirm connection (hiding full key)
+  console.log(`Aditi's AI: Connected to Supabase at ${supabaseUrl}`);
 }
 
 // Initialize the Supabase client
-// We provide placeholders to prevent the app from crashing immediately if config is missing.
-// The isSupabaseConfigured flag handles the UI state for auth.
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co', 
   supabaseAnonKey || 'placeholder'

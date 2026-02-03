@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppRoute } from '../types';
-import { Zap, Mail, Lock, ArrowRight, Loader2, User, AlertCircle, Ghost } from 'lucide-react';
+import { Zap, Mail, Lock, ArrowRight, Loader2, User, AlertCircle } from 'lucide-react';
 import { APP_NAME } from '../constants';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 
@@ -35,15 +35,6 @@ export const AuthPage: React.FC = () => {
     }
   }, [location]);
 
-  const handleGuestLogin = () => {
-    localStorage.setItem('guest_mode', 'true');
-    // Initialize guest coins if not present
-    if (!localStorage.getItem('guest_coins')) {
-        localStorage.setItem('guest_coins', '500');
-    }
-    navigate(AppRoute.IMAGE_DASHBOARD);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -76,10 +67,10 @@ export const AuthPage: React.FC = () => {
         if (authError) throw authError;
 
         if (authData.user) {
-          // Create profile with STARTER COINS
+          // Create profile with STARTER COINS using upsert to be safe
           const { error: profileError } = await supabase
             .from('profiles')
-            .insert([
+            .upsert([
               { 
                 id: authData.user.id, 
                 email: email,
@@ -87,13 +78,13 @@ export const AuthPage: React.FC = () => {
                 is_pro: false,
                 coins: 500 // Initial Bonus
               }
-            ]);
+            ], { onConflict: 'id' });
 
           if (profileError) {
              console.warn('Profile creation note:', profileError.message);
           }
           
-          // 3. Auto-Login Check
+          // 3. Auto-Login Check (if email confirm is off)
           if (!authData.session) {
              const { error: signInError } = await supabase.auth.signInWithPassword({
                email: email,
@@ -124,15 +115,31 @@ export const AuthPage: React.FC = () => {
         }
       } else {
         // Login Logic
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
           email: email,
           password: password,
         });
 
         if (signInError) {
-            // Rethrow to be caught by the catch block below which handles messaging
             throw signInError;
         }
+
+        // On successful login, ensure profile exists (heal broken accounts)
+        if (authData.user) {
+            const { data: existingProfile } = await supabase.from('profiles').select('id').eq('id', authData.user.id).single();
+            
+            if (!existingProfile) {
+                console.log("Healing missing profile for user...");
+                await supabase.from('profiles').insert([{
+                    id: authData.user.id,
+                    email: authData.user.email,
+                    full_name: authData.user.user_metadata?.full_name || 'User',
+                    is_pro: false,
+                    coins: 500
+                }]);
+            }
+        }
+
         navigate(AppRoute.IMAGE_DASHBOARD);
       }
     } catch (err: any) {
@@ -158,7 +165,7 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0f0e17] dark:bg-[#0f0e17]">
       {/* Abstract Background */}
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[100px] pointer-events-none"></div>
       <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[100px] pointer-events-none"></div>
@@ -267,18 +274,6 @@ export const AuthPage: React.FC = () => {
             )}
           </button>
         </form>
-        
-        {/* Guest Option */}
-        <div className="mt-4 pt-4 border-t border-slate-800">
-           <button 
-             type="button"
-             onClick={handleGuestLogin}
-             className="w-full flex justify-center items-center py-3 px-4 rounded-xl border border-slate-700 bg-slate-950/50 hover:bg-slate-900 hover:border-slate-500 text-slate-300 text-sm font-bold transition-all"
-           >
-              <Ghost className="mr-2 h-4 w-4" />
-              Continue as Guest
-           </button>
-        </div>
         
         {/* Footer */}
         <div className="mt-8 text-center">

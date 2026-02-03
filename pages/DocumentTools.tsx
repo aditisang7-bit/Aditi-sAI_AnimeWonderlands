@@ -3,6 +3,7 @@ import { processDocumentText, fileToGenerativePart, analyzeImageContent } from '
 import { PROMPTS } from '../constants';
 import { Loader2, FileText, CheckCircle, AlertTriangle, BookOpen, Camera, Download, HelpCircle, X, SwitchCamera } from 'lucide-react';
 import { FileUpload } from '../components/FileUpload';
+import { FeedbackModal } from '../components/FeedbackModal';
 
 type DocMode = 'SUMMARIZE' | 'PLAGIARISM' | 'REWRITE' | 'SOLVE';
 
@@ -12,6 +13,7 @@ export const DocumentTools: React.FC = () => {
   const [inputFile, setInputFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
   
   // Camera
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -93,6 +95,7 @@ export const DocumentTools: React.FC = () => {
         response = await processDocumentText(prompt, inputText);
       }
       setResult(response);
+      setTimeout(() => setShowFeedback(true), 3000);
     } catch (e) {
       setResult("Error processing document. Please check API key or file format.");
     } finally {
@@ -122,6 +125,8 @@ export const DocumentTools: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 relative">
+      <FeedbackModal isOpen={showFeedback} onClose={() => setShowFeedback(false)} toolName={`Doc ${activeMode}`} />
+
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-2">Document Intelligence</h1>
         <p className="text-slate-400">Summarize, check for plagiarism, solve homework, and export.</p>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+<html lang="en" itemscope itemtype="http://schema.org/WebPage" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
@@ -46,6 +46,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class', // Enables class-based dark mode toggling
         theme: {
           extend: {
             colors: {
@@ -61,6 +62,20 @@
                 800: 'var(--color-primary-800)',
                 900: 'var(--color-primary-900)',
                 950: 'var(--color-primary-950)',
+              }
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out',
+              'fade-in-up': 'fadeInUp 0.5s ease-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
               }
             }
           }
@@ -84,9 +99,24 @@
         --color-primary-900: #581c87;
         --color-primary-950: #3b0764;
       }
-      body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+      /* Adaptive Backgrounds */
+      body { 
+        font-family: 'Inter', sans-serif; 
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      /* Dark mode defaults (applied via Tailwind 'dark' class on html) */
+      .dark body {
+        background-color: #0f172a;
+        color: #f8fafc;
+      }
+      /* Light mode defaults */
+      body {
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
       ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #1e293b; }
+      ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: var(--color-primary-600); border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: var(--color-primary-500); }
     </style>

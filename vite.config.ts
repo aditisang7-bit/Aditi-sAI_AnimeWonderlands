@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
   // NEW CREDENTIALS (Aditis AI)
   const SUPABASE_URL = "https://odicapopaiaijxsnzlvy.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kaWNhcG9wYWlhaWp4c256bHZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMTQ5NjMsImV4cCI6MjA4Mzg5MDk2M30.zXARRDd5DH8HkpE_CqVrb3nh9QiAO0LmBxwA_9RxTJU";
+  const RAZORPAY_KEY_ID = "rzp_test_S7lkKybW8GrwHH";
 
   return {
     plugins: [react()],
@@ -21,7 +22,8 @@ export default defineConfig(({ mode }) => {
       // Inject Supabase credentials (using provided fallback if env vars are missing)
       'process.env.REACT_APP_SUPABASE_URL': JSON.stringify(process.env.REACT_APP_SUPABASE_URL || env.REACT_APP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL),
       'process.env.REACT_APP_SUPABASE_ANON_KEY': JSON.stringify(process.env.REACT_APP_SUPABASE_ANON_KEY || env.REACT_APP_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY),
-      'process.env.REACT_APP_RAZORPAY_KEY_ID': JSON.stringify(process.env.REACT_APP_RAZORPAY_KEY_ID || env.REACT_APP_RAZORPAY_KEY_ID),
+      // Inject Razorpay Key
+      'process.env.REACT_APP_RAZORPAY_KEY_ID': JSON.stringify(process.env.REACT_APP_RAZORPAY_KEY_ID || env.REACT_APP_RAZORPAY_KEY_ID || RAZORPAY_KEY_ID),
     },
     build: {
       outDir: 'dist',

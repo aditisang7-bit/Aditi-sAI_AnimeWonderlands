@@ -69,6 +69,7 @@ export const THEMES: Record<ThemeColor, Record<string, string>> = {
 };
 
 const THEME_KEY = 'aw_theme_color';
+const MODE_KEY = 'aw_theme_mode';
 
 export const setTheme = (color: ThemeColor) => {
   const root = document.documentElement;
@@ -83,11 +84,41 @@ export const setTheme = (color: ThemeColor) => {
   localStorage.setItem(THEME_KEY, color);
 };
 
+export const setMode = (mode: 'light' | 'dark') => {
+  const root = document.documentElement;
+  if (mode === 'dark') {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+  localStorage.setItem(MODE_KEY, mode);
+};
+
+export const toggleMode = () => {
+  const current = localStorage.getItem(MODE_KEY) || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  setMode(next);
+  return next === 'dark'; // returns isDark
+};
+
 export const initTheme = () => {
-  const saved = localStorage.getItem(THEME_KEY) as ThemeColor;
-  setTheme(saved || 'purple');
+  // Color init
+  const savedColor = localStorage.getItem(THEME_KEY) as ThemeColor;
+  setTheme(savedColor || 'purple');
+
+  // Mode init
+  const savedMode = localStorage.getItem(MODE_KEY);
+  if (!savedMode || savedMode === 'dark') {
+    setMode('dark');
+  } else {
+    setMode('light');
+  }
 };
 
 export const getCurrentTheme = (): ThemeColor => {
   return (localStorage.getItem(THEME_KEY) as ThemeColor) || 'purple';
+};
+
+export const getCurrentMode = (): 'light' | 'dark' => {
+  return (localStorage.getItem(MODE_KEY) as 'light' | 'dark') || 'dark';
 };

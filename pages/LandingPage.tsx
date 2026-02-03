@@ -155,17 +155,17 @@ export const LandingPage: React.FC = () => {
       <section className="pt-20 pb-10 flex flex-col items-center relative z-10">
         
         {/* Decorative Blur Behind */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-purple-200 dark:bg-purple-900/20 rounded-full blur-[120px] pointer-events-none opacity-50 dark:opacity-100"></div>
 
         <div className="mb-10 text-center space-y-4">
-          <div className="inline-flex items-center space-x-2 px-4 py-1.5 bg-slate-800/50 border border-slate-700 rounded-full text-slate-300 text-xs font-bold mb-4 animate-fade-in backdrop-blur-sm">
-            <Star size={12} className="text-yellow-400" fill="currentColor" />
+          <div className="inline-flex items-center space-x-2 px-4 py-1.5 bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-full text-slate-600 dark:text-slate-300 text-xs font-bold mb-4 animate-fade-in backdrop-blur-sm shadow-sm">
+            <Star size={12} className="text-yellow-500 dark:text-yellow-400" fill="currentColor" />
             <h2 className="inline">AI-Powered Creative Ecosystem in India</h2>
           </div>
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight drop-shadow-2xl">
-            What will you <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">create</span> today?
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-tight drop-shadow-sm dark:drop-shadow-2xl">
+            What will you <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 dark:from-pink-400 dark:to-purple-400">create</span> today?
           </h1>
-          <p className="text-slate-400 max-w-2xl mx-auto">
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium">
             The all-in-one platform for Anime Art Generation, Online Ludo Gaming, and Content Creation. Built for creators in Pune and beyond.
           </p>
         </div>
@@ -173,12 +173,12 @@ export const LandingPage: React.FC = () => {
         {/* Universal Search Bar */}
         <div className="w-full max-w-3xl relative group z-20">
            {/* Animated Glow Border */}
-           <div className="absolute -inset-1 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500 will-change-transform"></div>
+           <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 rounded-2xl blur opacity-20 dark:opacity-30 group-hover:opacity-60 transition duration-500 will-change-transform"></div>
            
-           <div className="relative bg-slate-900 border border-slate-700 rounded-2xl flex items-center p-2 shadow-2xl transition-all focus-within:border-purple-500 focus-within:bg-slate-900/90 focus-within:scale-[1.01]">
+           <div className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl flex items-center p-2 shadow-xl dark:shadow-2xl transition-all focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:scale-[1.01]">
               <Search className="ml-4 text-slate-400 shrink-0" size={24} />
               <input 
-                 className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-slate-500 text-lg px-4 py-4 font-medium"
+                 className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-lg px-4 py-4 font-medium"
                  placeholder="Search tools, ask questions, or generate art..."
                  value={searchQuery}
                  onChange={e => setSearchQuery(e.target.value)}
@@ -190,7 +190,7 @@ export const LandingPage: React.FC = () => {
                  <button 
                    onClick={startVoice}
                    title="Voice Search"
-                   className="p-3 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors tooltip"
+                   className="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors tooltip"
                    aria-label="Voice Search"
                  >
                    <Mic size={22} />
@@ -198,14 +198,14 @@ export const LandingPage: React.FC = () => {
                  <button 
                    onClick={startCamera}
                    title="Lens / Camera Search"
-                   className="p-3 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors"
+                   className="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                    aria-label="Camera Search"
                  >
                    <Camera size={22} />
                  </button>
                  <button 
                    onClick={() => handleSearch()}
-                   className="p-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition-colors shadow-lg shadow-purple-900/20 active:scale-95 transform"
+                   className="p-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition-colors shadow-lg shadow-purple-600/20 dark:shadow-purple-900/20 active:scale-95 transform"
                    aria-label="Submit Search"
                  >
                    <ArrowRight size={22} />
@@ -228,13 +228,13 @@ export const LandingPage: React.FC = () => {
                onMouseEnter={() => !action.isComingSoon && playUiSound('hover')}
                className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm font-medium transition-all ${
                  action.isComingSoon 
-                   ? 'bg-slate-900/40 border-slate-800 text-slate-500 cursor-not-allowed' 
-                   : 'bg-slate-800/40 hover:bg-slate-800 border-slate-700 hover:border-slate-600 text-slate-300 hover:text-white hover:-translate-y-0.5'
+                   ? 'bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed' 
+                   : 'bg-white/80 dark:bg-slate-800/40 hover:bg-white dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-purple-600 dark:hover:text-white hover:-translate-y-0.5 shadow-sm'
                }`}
              >
                {action.icon}
                <span>{action.label}</span>
-               {action.isComingSoon && <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-bold">SOON</span>}
+               {action.isComingSoon && <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400 font-bold">SOON</span>}
              </button>
           ))}
         </div>
@@ -244,16 +244,16 @@ export const LandingPage: React.FC = () => {
       <section className="grid md:grid-cols-3 gap-6 relative z-10">
         {/* LUDO CARD */}
         <div className="block group relative cursor-not-allowed opacity-90 transition-all duration-500">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 h-full relative overflow-hidden group-hover:border-yellow-500/50">
+          <div className="bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 h-full relative overflow-hidden group-hover:border-yellow-500/50 shadow-lg dark:shadow-none">
             <div className="absolute top-4 right-4 bg-yellow-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-full z-10 shadow-lg">COMING SOON</div>
             <div className="absolute bottom-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-              <Gamepad2 size={120} />
+              <Gamepad2 size={120} className="text-slate-900 dark:text-white" />
             </div>
-            <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-yellow-900/20 group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 dark:from-yellow-500 dark:to-orange-600 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-yellow-500/20 dark:shadow-yellow-900/20 group-hover:scale-110 transition-transform">
               <Gamepad2 size={36} />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-yellow-400 transition-colors">Anime Ludo</h3>
-            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors">Anime Ludo</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4">
               Battle friends or AI bots in a cyberpunk arena. Earn WonderCoins and unlock legendary skins. Best Ludo game in India.
             </p>
           </div>
@@ -265,15 +265,15 @@ export const LandingPage: React.FC = () => {
           className="block group"
           onMouseEnter={() => playUiSound('hero_hover')}
         >
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 hover:border-pink-500/50 transition-colors h-full relative overflow-hidden shadow-lg hover:shadow-pink-900/10">
+          <div className="bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 hover:border-pink-500/50 transition-colors h-full relative overflow-hidden shadow-lg hover:shadow-pink-500/10 dark:hover:shadow-pink-900/10">
              <div className="absolute bottom-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-              <User size={120} />
+              <User size={120} className="text-slate-900 dark:text-white" />
             </div>
-            <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-pink-900/20 group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-pink-500/20 dark:shadow-pink-900/20 group-hover:scale-110 transition-transform">
               <Sparkles size={36} />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-pink-400 transition-colors">Future Self AI</h3>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">Future Self AI</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
               Visualize your success. Our AI transforms your photos into your ideal anime protagonist self.
             </p>
           </div>
@@ -285,15 +285,15 @@ export const LandingPage: React.FC = () => {
           className="block group"
           onMouseEnter={() => playUiSound('hero_hover')}
         >
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-8 rounded-3xl border border-slate-800 hover:border-indigo-500/50 transition-colors h-full relative overflow-hidden shadow-lg hover:shadow-indigo-900/10">
+          <div className="bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 transition-colors h-full relative overflow-hidden shadow-lg hover:shadow-indigo-500/10 dark:hover:shadow-indigo-900/10">
              <div className="absolute bottom-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-              <Play size={120} />
+              <Play size={120} className="text-slate-900 dark:text-white" />
             </div>
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-indigo-900/20 group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-indigo-500/20 dark:shadow-indigo-900/20 group-hover:scale-110 transition-transform">
               <Play size={36} />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-indigo-400 transition-colors">Wonder Feed</h3>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Wonder Feed</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
               Share your gameplay highlights and AI art. Connect with a billion-user anime community.
             </p>
           </div>
@@ -448,42 +448,42 @@ export const LandingPage: React.FC = () => {
       <AdUnit type="in-article" />
 
       {/* Tools Grid */}
-      <section className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 backdrop-blur-sm">
-         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Sparkles className="text-purple-400" /> More Creative Tools
+      <section className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 backdrop-blur-sm shadow-sm">
+         <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Sparkles className="text-purple-600 dark:text-purple-400" /> More Creative Tools
          </h2>
          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link 
               to={AppRoute.IMAGE_DASHBOARD} 
-              className="p-4 bg-slate-900 border border-slate-800 rounded-xl hover:border-purple-500/50 transition-all flex flex-col items-center text-center gap-3 hover:bg-slate-800 group"
+              className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-purple-500/50 transition-all flex flex-col items-center text-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 group shadow-sm"
               onMouseEnter={() => playUiSound('hover')}
             >
-                <ImageIcon className="text-blue-400 group-hover:scale-110 transition-transform" />
-                <span className="font-bold text-sm text-slate-300 group-hover:text-white">Image Studio</span>
+                <ImageIcon className="text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                <span className="font-bold text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">Image Studio</span>
             </Link>
             <Link 
               to={AppRoute.VIDEO_TOOLS} 
-              className="p-4 bg-slate-900 border border-slate-800 rounded-xl hover:border-purple-500/50 transition-all flex flex-col items-center text-center gap-3 hover:bg-slate-800 group"
+              className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-purple-500/50 transition-all flex flex-col items-center text-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 group shadow-sm"
               onMouseEnter={() => playUiSound('hover')}
             >
-                <Video className="text-pink-400 group-hover:scale-110 transition-transform" />
-                <span className="font-bold text-sm text-slate-300 group-hover:text-white">Video Creator</span>
+                <Video className="text-pink-500 dark:text-pink-400 group-hover:scale-110 transition-transform" />
+                <span className="font-bold text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">Video Creator</span>
             </Link>
              <Link 
               to={AppRoute.DOC_TOOLS} 
-              className="p-4 bg-slate-900 border border-slate-800 rounded-xl hover:border-purple-500/50 transition-all flex flex-col items-center text-center gap-3 hover:bg-slate-800 group"
+              className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-purple-500/50 transition-all flex flex-col items-center text-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 group shadow-sm"
               onMouseEnter={() => playUiSound('hover')}
              >
-                <FileText className="text-yellow-400 group-hover:scale-110 transition-transform" />
-                <span className="font-bold text-sm text-slate-300 group-hover:text-white">Doc AI</span>
+                <FileText className="text-yellow-500 dark:text-yellow-400 group-hover:scale-110 transition-transform" />
+                <span className="font-bold text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">Doc AI</span>
             </Link>
              <Link 
               to={AppRoute.AI_ASSISTANT} 
-              className="p-4 bg-slate-900 border border-slate-800 rounded-xl hover:border-purple-500/50 transition-all flex flex-col items-center text-center gap-3 hover:bg-slate-800 group"
+              className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-purple-500/50 transition-all flex flex-col items-center text-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 group shadow-sm"
               onMouseEnter={() => playUiSound('hover')}
              >
-                <Search className="text-green-400 group-hover:scale-110 transition-transform" />
-                <span className="font-bold text-sm text-slate-300 group-hover:text-white">Smart Search</span>
+                <Search className="text-green-500 dark:text-green-400 group-hover:scale-110 transition-transform" />
+                <span className="font-bold text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">Smart Search</span>
             </Link>
          </div>
       </section>

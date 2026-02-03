@@ -4,6 +4,7 @@ import { FileUpload } from '../components/FileUpload';
 import { analyzeVideo, generateVeoVideo, generateSpeech, playRawAudio } from '../services/geminiService';
 import { PROMPTS } from '../constants';
 import { Loader2, Clapperboard, Type, Copy, Video as VideoIcon, Megaphone, Mic, Play, Film, Ratio } from 'lucide-react';
+import { FeedbackModal } from '../components/FeedbackModal';
 
 type ToolType = 'CAPTION' | 'IMG_TO_VIDEO' | 'AD_STUDIO';
 type AdStyle = 'UGC' | 'ANIMATED';
@@ -19,6 +20,9 @@ export const VideoTools: React.FC = () => {
   const [resultAudio, setResultAudio] = useState<string | null>(null); // Base64 audio
   const [error, setError] = useState<string | null>(null);
 
+  // Feedback
+  const [showFeedback, setShowFeedback] = useState(false);
+
   // Tool Specific States
   const [adStyle, setAdStyle] = useState<AdStyle>('UGC');
   const [adScript, setAdScript] = useState("");
@@ -28,10 +32,6 @@ export const VideoTools: React.FC = () => {
   useEffect(() => {
     if (location.state?.autoGenPrompt) {
         setVideoPrompt(location.state.autoGenPrompt);
-        // Note: We cannot fully auto-execute video here because video gen usually requires a reference image or specific model
-        // which might not be present. However, we can set the prompt and prepare the UI.
-        
-        // Clear state
         window.history.replaceState({}, '');
     }
   }, []);
@@ -74,14 +74,7 @@ export const VideoTools: React.FC = () => {
         // General Image to Video
         if (!file && !videoPrompt) throw new Error("Please provide a prompt or upload an image.");
         
-        // If NO file but we have a prompt (e.g. from AutoGen), we might need text-to-video.
-        // The Veo function currently expects image, but Veo can do text-to-video too.
-        // Let's adapt if needed, but for now we enforce image for consistency with Veo I2V.
-        // If the user arrived via AutoGen, they might not have an image yet.
-        
         if (!file) {
-            // We can try text-only generation if supported, or error out asking for image.
-            // For this implementation, we will assume image is required for high quality.
              throw new Error("Please upload a reference image to animate.");
         }
 
@@ -89,6 +82,10 @@ export const VideoTools: React.FC = () => {
         const videoUrl = await generateVeoVideo(finalPrompt, file, aspectRatio);
         setResultVideo(videoUrl);
       }
+      
+      // Show feedback modal after success
+      setTimeout(() => setShowFeedback(true), 5000);
+
     } catch (err: any) {
       setError(err.message || "Operation failed.");
     } finally {
@@ -98,6 +95,8 @@ export const VideoTools: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
+      <FeedbackModal isOpen={showFeedback} onClose={() => setShowFeedback(false)} toolName={activeTool} />
+
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Video & Ad Studio</h1>

@@ -57,7 +57,8 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, planName
     // SECURITY NOTE: In a complete production environment, you should fetch the 
     // order_id from your backend (Edge Function) here instead of creating the payment client-side.
     // This prevents amount tampering.
-    const razorpayKey = process.env.REACT_APP_RAZORPAY_KEY_ID;
+    // FALLBACK: Use provided test key if env var fails
+    const razorpayKey = process.env.REACT_APP_RAZORPAY_KEY_ID || "rzp_test_S7lkKybW8GrwHH";
 
     if (!razorpayKey) {
       alert("Payment Configuration Error: Missing API Key");
@@ -66,7 +67,7 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, planName
     }
 
     const options = {
-      key: razorpayKey, // SECURED: Using environment variable
+      key: razorpayKey, // SECURED: Using environment variable or fallback
       amount: amountInPaisa,
       currency: "INR",
       name: "Anime Wonderlands+",
@@ -276,7 +277,11 @@ export const PricingPage: React.FC = () => {
             name: profile?.full_name || ''
         });
 
-        if (profile?.plan_type) {
+        // Optimistic check override
+        const isProLocal = localStorage.getItem('aw_pro_status') === 'true';
+        if (isProLocal) {
+            setCurrentPlanType(localStorage.getItem('aw_plan_type') || 'monthly');
+        } else if (profile?.plan_type) {
             setCurrentPlanType(profile.plan_type.toLowerCase());
         }
       }

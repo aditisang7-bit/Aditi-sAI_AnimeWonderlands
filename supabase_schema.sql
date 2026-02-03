@@ -42,7 +42,6 @@ CREATE TABLE public.generations (
 );
 
 -- 4. SOCIAL POSTS (Wonder Feed)
--- Stores community shared content
 CREATE TABLE public.social_posts (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
@@ -53,20 +52,32 @@ CREATE TABLE public.social_posts (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 5. SECURITY (Row Level Security)
+-- 5. FEEDBACKS (User Feedback System)
+CREATE TABLE public.feedbacks (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
+  tool_used text NOT NULL, -- e.g., 'Image Generator', 'Video Creator'
+  rating integer NOT NULL, -- 1 to 5
+  comment text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 6. SECURITY (Row Level Security)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.generations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.social_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.feedbacks ENABLE ROW LEVEL SECURITY;
 
 -- Policies
--- Profiles: Public read (for feed), Owner write
+-- Profiles: Public read, Owner update (CRITICAL for payment demo)
 CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles FOR SELECT USING (true);
 CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
--- Orders: Owner read only
+-- Orders: Owner read/write
 CREATE POLICY "Users can view own orders" ON public.orders FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own orders" ON public.orders FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Generations: Owner read/write
 CREATE POLICY "Users can view own generations" ON public.generations FOR SELECT USING (auth.uid() = user_id);
@@ -78,7 +89,11 @@ CREATE POLICY "Users can create posts" ON public.social_posts FOR INSERT WITH CH
 CREATE POLICY "Users can update own posts" ON public.social_posts FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own posts" ON public.social_posts FOR DELETE USING (auth.uid() = user_id);
 
--- 6. TRIGGER (Auto-create Profile)
+-- Feedbacks: Public insert (authenticated), Admin view (we assume admin uses service role or specific email check in app)
+CREATE POLICY "Users can insert feedback" ON public.feedbacks FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can view own feedback" ON public.feedbacks FOR SELECT USING (auth.uid() = user_id);
+
+-- 7. TRIGGER (Auto-create Profile)
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS trigger AS $$
 BEGIN

@@ -38,14 +38,9 @@ const PageLoader = () => (
 const ProtectedRoute = ({ children, requireAdmin = false }: { children?: React.ReactNode, requireAdmin?: boolean }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
-      // Check Guest Mode
-      const guest = localStorage.getItem('guest_mode') === 'true';
-      setIsGuest(guest);
-
       if (!isSupabaseConfigured) {
         setLoading(false);
         return;
@@ -73,9 +68,8 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children?: React.R
     );
   }
 
-  // Allow access if session exists OR is guest
-  // If explicitly requiring admin, guest is not allowed
-  if (!session && !isGuest) {
+  // Strictly require session (No Guest Mode)
+  if (!session) {
      return <Navigate to={AppRoute.LOGIN} replace />;
   }
 
