@@ -21,7 +21,8 @@ export enum AppRoute {
   IMAGE_DASHBOARD = '/image-studio',
   VIDEO_TOOLS = '/video-studio',
   DOC_TOOLS = '/doc-intelligence',
-  AI_ASSISTANT = '/ai-assistant', // New Route
+  AI_ASSISTANT = '/ai-assistant',
+  GATE_EXAM = '/gate-exam', // New Route
   
   // Legal & Support
   PRIVACY = '/privacy-policy',
@@ -91,4 +92,21 @@ export interface AnalysisResult {
   description: string;
   attributes: AnalysisAttribute[];
   confidence?: number;
+}
+
+// --- DOC EDITOR TYPES ---
+export interface DocBlock {
+  id: string;
+  type: 'h1' | 'h2' | 'p' | 'li' | 'img';
+  content: string; // HTML string
+  x: number;
+  y: number;
+  width?: number;
+  style: {
+    color: string;
+    fontSize: number;
+    fontWeight: string;
+    fontStyle: string;
+    textAlign: 'left' | 'center' | 'right';
+  };
 }

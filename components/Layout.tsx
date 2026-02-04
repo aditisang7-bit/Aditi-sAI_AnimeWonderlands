@@ -23,7 +23,8 @@ import {
   Palette,
   ShoppingBag,
   Sun,
-  Moon
+  Moon,
+  GraduationCap
 } from 'lucide-react';
 import { AppRoute } from '../types';
 import { APP_NAME, ADMIN_EMAIL, BOOKS_LINK } from '../constants';
@@ -294,6 +295,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <NavLink to={AppRoute.IMAGE_DASHBOARD} icon={<Image size={20} />} label="Image Studio" onClick={() => setIsMobileMenuOpen(false)} />
             <NavLink to={AppRoute.VIDEO_TOOLS} icon={<Video size={20} />} label="Video Studio" onClick={() => setIsMobileMenuOpen(false)} />
             <NavLink to={AppRoute.DOC_TOOLS} icon={<FileText size={20} />} label="Document AI" onClick={() => setIsMobileMenuOpen(false)} />
+
+            <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest">Education</div>
+            <NavLink to={AppRoute.GATE_EXAM} icon={<GraduationCap size={20} />} label="GATE Exam" onClick={() => setIsMobileMenuOpen(false)} />
 
             <div className="pt-4 pb-2 px-4 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest">Store</div>
             <a 

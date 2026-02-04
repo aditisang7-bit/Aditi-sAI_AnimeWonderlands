@@ -21,6 +21,7 @@ const ImageTools = lazy(() => import('./pages/ImageTools').then(m => ({ default:
 const VideoTools = lazy(() => import('./pages/VideoTools').then(m => ({ default: m.VideoTools })));
 const DocumentTools = lazy(() => import('./pages/DocumentTools').then(m => ({ default: m.DocumentTools })));
 const ChatPage = lazy(() => import('./pages/ChatPage').then(m => ({ default: m.ChatPage })));
+const GateExamPage = lazy(() => import('./pages/GateExamPage').then(m => ({ default: m.GateExamPage }))); // New
 
 // Legal Pages (Grouped)
 const PrivacyPage = lazy(() => import('./pages/LegalPages').then(m => ({ default: m.PrivacyPage })));
@@ -38,21 +39,37 @@ const PageLoader = () => (
 const ProtectedRoute = ({ children, requireAdmin = false }: { children?: React.ReactNode, requireAdmin?: boolean }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
+      // 1. Check Guest Mode
+      const guestMode = localStorage.getItem('guest_mode') === 'true';
+      setIsGuest(guestMode);
+
       if (!isSupabaseConfigured) {
         setLoading(false);
         return;
       }
 
-      // Check Supabase Session
+      // 2. Check Supabase Session
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
+      
+      // If we have a real session, disable guest mode to ensure data syncing
+      if (session && guestMode) {
+          localStorage.removeItem('guest_mode');
+          setIsGuest(false);
+      }
+
       setLoading(false);
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
         setSession(session);
+        if (session) {
+            localStorage.removeItem('guest_mode');
+            setIsGuest(false);
+        }
       });
       return () => subscription.unsubscribe();
     };
@@ -68,8 +85,9 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children?: React.R
     );
   }
 
-  // Strictly require session (No Guest Mode)
-  if (!session) {
+  // Allow access if Session exists OR Guest Mode is active
+  // EXCEPTION: Admin routes always require a real session and specific email
+  if (!session && !isGuest) {
      return <Navigate to={AppRoute.LOGIN} replace />;
   }
 
@@ -99,7 +117,7 @@ const App: React.FC = () => {
             <Route path={AppRoute.ABOUT} element={<><SEO title="About Aditi's AI - Pune Based AI Startup" description="Learn about Aditi's AI, the Thergaon, Pune based startup revolutionizing Anime AI tools." /><AboutPage /></>} />
             <Route path={AppRoute.CONTACT} element={<><SEO title="Contact Us - Aditi's AI" /><ContactPage /></>} />
 
-            {/* Core Modules (Protected) */}
+            {/* Core Modules (Protected or Guest) */}
             <Route path={AppRoute.GAME_LUDO} element={
               <div className="min-h-screen bg-[#0f0e17] flex flex-col items-center justify-center text-white p-4 text-center">
                   <SEO title="Anime Ludo - Coming Soon" />
@@ -116,13 +134,16 @@ const App: React.FC = () => {
             <Route path={AppRoute.DOC_TOOLS} element={<ProtectedRoute><SEO title="Document AI - Summarizer & Solver" /><DocumentTools /></ProtectedRoute>} />
             <Route path={AppRoute.AI_ASSISTANT} element={<ProtectedRoute><SEO title="Wonder Chat - AI Assistant" /><ChatPage /></ProtectedRoute>} />
             
+            {/* NEW: GATE EXAM */}
+            <Route path={AppRoute.GATE_EXAM} element={<ProtectedRoute><SEO title="GATE Exam AI Simulator - Aditi's AI" /><GateExamPage /></ProtectedRoute>} />
+
             {/* Legacy/Support Routes */}
             <Route path={AppRoute.TRENDING} element={<ProtectedRoute><SEO title="Trending AI Art - Aditi's AI" /><TrendingPage /></ProtectedRoute>} />
             <Route path={AppRoute.PRICING} element={<ProtectedRoute><SEO title="Pricing - Upgrade to Pro" /><PricingPage /></ProtectedRoute>} />
             <Route path={AppRoute.PAYMENT_SUCCESS} element={<ProtectedRoute><PaymentSuccessPage /></ProtectedRoute>} />
             <Route path={AppRoute.SETTINGS} element={<ProtectedRoute><SEO title="Account Settings" /><SettingsPage /></ProtectedRoute>} />
 
-            {/* Admin */}
+            {/* Admin (Strictly Protected) */}
             <Route path={AppRoute.ADMIN} element={<ProtectedRoute requireAdmin={true}><SEO title="Admin Console" /><AdminDashboard /></ProtectedRoute>} />
             
             <Route path="*" element={<Navigate to={AppRoute.HOME} replace />} />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { User, Mail, Shield, Zap, CreditCard, Save, Loader2, LogIn, Coins, History, CheckCircle } from 'lucide-react';
+import { User, Mail, Shield, Zap, CreditCard, Save, Loader2, LogIn, Coins, History, CheckCircle, UserCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AppRoute } from '../types';
 
@@ -17,6 +17,7 @@ export const SettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -25,7 +26,15 @@ export const SettingsPage: React.FC = () => {
   const fetchProfile = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // Guest Check
       if (!user) {
+        const guestMode = localStorage.getItem('guest_mode') === 'true';
+        if (guestMode) {
+            setIsGuest(true);
+            setLoading(false);
+            return;
+        }
         setLoading(false);
         return;
       }
@@ -110,6 +119,33 @@ export const SettingsPage: React.FC = () => {
   };
 
   if (loading) return <div className="p-8 text-center"><Loader2 className="animate-spin mx-auto text-purple-500" /></div>;
+
+  if (isGuest) {
+      return (
+        <div className="max-w-2xl mx-auto py-12 px-4 text-center animate-fade-in">
+            <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                <UserCircle size={48} className="text-slate-500" />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Guest Mode Active</h1>
+            <p className="text-slate-500 dark:text-slate-400 mb-8">
+                You are currently browsing as a guest. Your generated images, game progress, and coins are stored temporarily on this device.
+            </p>
+            
+            <div className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 p-8 rounded-3xl border border-purple-500/30">
+                <h2 className="text-xl font-bold text-white mb-2">Create a Free Account</h2>
+                <p className="text-purple-200 text-sm mb-6">Unlock persistent storage, cloud sync, and 500 bonus coins instantly.</p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link to={AppRoute.REGISTER} className="px-8 py-3 bg-white text-purple-900 font-bold rounded-xl hover:bg-slate-200 transition-colors">
+                        Sign Up Now
+                    </Link>
+                    <Link to={AppRoute.LOGIN} className="px-8 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-500 transition-colors">
+                        Login
+                    </Link>
+                </div>
+            </div>
+        </div>
+      );
+  }
 
   const planLabel = profile?.is_pro 
     ? (profile.plan_type === 'yearly' ? 'Pro Creator Yearly' : 'Pro Creator Monthly') 
@@ -244,13 +280,4 @@ export const SettingsPage: React.FC = () => {
                 Upgrade Now
               </Link>
             ) : (
-              <button disabled className="block w-full py-3 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-center font-bold rounded-xl cursor-not-allowed">
-                Plan Active
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+              <button disabled className="block w-full py-3 bg-slate-

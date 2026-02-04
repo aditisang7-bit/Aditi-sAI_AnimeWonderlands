@@ -119,6 +119,23 @@ export const PROMPTS = {
   DOC_SUMMARIZE: "Summarize the key points of this document.",
   DOC_PLAGIARISM: "Analyze this text for potential plagiarism or AI generation patterns.",
   DOC_REWRITE: "Rewrite this text in a formal IEEE academic style.",
+  
+  // DOCS - GENERATORS
+  DOC_PDF_GEN: `Create a comprehensive, professional report on the following topic. 
+  Output strict HTML content using <h1>, <h2>, <p>, <ul>, <li> tags. 
+  Use inline CSS for styling to make it look like a clean, modern white paper (font-family: Arial, line-height: 1.6). 
+  Do not include markdown backticks or 'html' language tags, just the raw HTML body content.
+  Include a Title Section, Introduction, Core Analysis (with subheaders), and Conclusion. 
+  Topic: `,
+  
+  DOC_PPT_GEN: `Act as a Presentation Expert. Create a slide deck for the following topic. 
+  Return ONLY a JSON array of slide objects.
+  Each object must have: 
+  - 'title' (string)
+  - 'content' (array of strings, bullet points)
+  - 'speakerNotes' (string)
+  Do not use markdown formatting for the JSON. 
+  Topic: `,
 
   // --- IMAGE STUDIO SPECIFIC ---
   SMART_ENHANCE: "Refine this prompt to be more descriptive, artistic, and effective for an image generation model. Keep it concise but add necessary details about lighting and composition. Prompt:",

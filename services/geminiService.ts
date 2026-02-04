@@ -21,6 +21,84 @@ export const fileToGenerativePart = async (file: File): Promise<{ inlineData: { 
 
 const getClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+// --- GATE EXAM SERVICE ---
+
+export interface GateQuestion {
+  id: number;
+  type: 'MCQ' | 'MSQ' | 'NAT';
+  questionText: string;
+  options?: string[]; // Only for MCQ/MSQ
+  correctAnswer: string | string[]; // "A" or ["A","B"] or "10.5-12.0"
+  marks: number;
+  explanation: string;
+  gateTrap: string;
+}
+
+export const generateGatePaper = async (
+  branch: string,
+  topic: string,
+  mode: 'TOPIC' | 'FULL'
+): Promise<GateQuestion[]> => {
+  const ai = getClient();
+  
+  // Prompt Construction based on user request
+  let systemContext = `Role: Act as a Senior IIT Professor and GATE Subject Matter Expert for ${branch}. 
+  Task: Generate a highly realistic GATE-style practice quiz based on the last 10 years of GATE patterns.`;
+
+  let userPrompt = "";
+  
+  if (mode === 'TOPIC') {
+    userPrompt = `Topic: ${topic}.
+    Structure: Provide exactly 5 questions:
+    - 2 MCQs (1-mark & 2-mark mix) with 4 options.
+    - 1 MSQ (Multiple Select) where one or more options are correct.
+    - 2 NAT (Numerical Answer Type) questions requiring specific values.
+    
+    Constraint: Ensure NAT questions involve multi-step calculations.
+    Output: A JSON array of question objects. Do NOT output markdown code blocks, just the raw JSON.`;
+  } else {
+    // Attempting a larger set for Mock
+    userPrompt = `Generate a GATE Mock Paper Section for ${branch}.
+    Include a mix of General Aptitude (GA) and Technical questions.
+    Total Questions: 15 (Compressed Mock for Latency).
+    Distribution: 3 GA, 12 Technical.
+    Mix of 1-mark and 2-mark questions.
+    Types: MCQ, MSQ, NAT.
+    Output: A JSON array of question objects.`;
+  }
+
+  const schemaInstruction = `
+  Return a JSON array where each object has:
+  - id: number
+  - type: "MCQ" | "MSQ" | "NAT"
+  - questionText: string (use LaTeX syntax like $x^2$ for math if needed)
+  - options: array of strings (null for NAT)
+  - correctAnswer: string (for MCQ "A", for MSQ "A,B", for NAT "10.5-10.7")
+  - marks: number (1 or 2)
+  - explanation: string (detailed step-by-step)
+  - gateTrap: string (why students fail this question)
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview', // High context, good reasoning
+      contents: { parts: [{ text: systemContext + "\n" + userPrompt + "\n" + schemaInstruction }] },
+      config: {
+        responseMimeType: "application/json"
+      }
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("No exam generated.");
+    
+    const questions = JSON.parse(text.replace(/```json|```/g, '').trim());
+    return questions as GateQuestion[];
+  } catch (error) {
+    console.error("GATE Generation Error:", error);
+    throw error;
+  }
+};
+
 // --- Core Smart Analysis ---
 
 export const detectImageCategory = async (file: File, prompt: string): Promise<AnalysisResult> => {
@@ -134,6 +212,33 @@ export const processDocumentText = async (
     return response.text || "Processing failed.";
   } catch (error) {
     console.error("Doc Processing Error:", error);
+    throw error;
+  }
+};
+
+// --- Presentation Generation (PPT) ---
+export interface Slide {
+  title: string;
+  content: string[];
+  speakerNotes: string;
+}
+
+export const generatePresentation = async (prompt: string, topic: string): Promise<Slide[]> => {
+  const ai = getClient();
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: { parts: [{ text: prompt + topic }] },
+      config: {
+        responseMimeType: "application/json"
+      }
+    });
+    const text = response.text || "[]";
+    // Strip markdown if exists
+    const jsonStr = text.replace(/```json|```/g, '').trim();
+    return JSON.parse(jsonStr) as Slide[];
+  } catch (error) {
+    console.error("PPT Generation Error:", error);
     throw error;
   }
 };

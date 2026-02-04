@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppRoute } from '../types';
-import { Zap, Mail, Lock, ArrowRight, Loader2, User, AlertCircle } from 'lucide-react';
+import { Zap, Mail, Lock, ArrowRight, Loader2, User, AlertCircle, UserCircle } from 'lucide-react';
 import { APP_NAME } from '../constants';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 
@@ -34,6 +34,17 @@ export const AuthPage: React.FC = () => {
       }
     }
   }, [location]);
+
+  const handleGuestAccess = () => {
+    localStorage.setItem('guest_mode', 'true');
+    // Ensure daily usage key exists to prevent errors in tools
+    const today = new Date().toISOString().split('T')[0];
+    const key = `aw_usage_${today}_guest`;
+    if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, '0');
+    }
+    navigate(AppRoute.IMAGE_DASHBOARD);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -275,6 +286,22 @@ export const AuthPage: React.FC = () => {
           </button>
         </form>
         
+        {/* Guest Option */}
+        <div className="mt-6 text-center">
+            <div className="relative flex items-center py-2 mb-4">
+               <div className="flex-grow border-t border-slate-700"></div>
+               <span className="flex-shrink-0 mx-4 text-slate-500 text-xs uppercase font-bold tracking-widest">Or</span>
+               <div className="flex-grow border-t border-slate-700"></div>
+            </div>
+            <button 
+              onClick={handleGuestAccess} 
+              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 border border-slate-700"
+            >
+               <UserCircle size={18} />
+               <span>Continue as Guest</span>
+            </button>
+        </div>
+
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-sm text-slate-400">
